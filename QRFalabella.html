@@ -1,0 +1,2390 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agencia de Seguros Falabella</title>
+  <link rel="icon" type="image/png" href="images/N.png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script>
+    window.APP_CONFIG_CITAS = {
+      API_TOKEN: '64xvLtdxbdDHTzq8fOxCR6T776PRrtjaXTCMkynN',
+      SVC_LIST: 'https://citas2.debmedia.com/api/v2/reducedSchedules',
+      AVAIL_BASE: 'https://citas2.debmedia.com/api/v2/schedules',
+      APPT_URL: 'https://citas2.debmedia.com/api/v2/appointments'
+    };
+  </script>
+  <style>
+    :root {
+      --falabella-verde: #439524;
+      --falabella-verde-hover: #36801d;
+      --falabella-verde-pressed: #2a6216;
+      --falabella-rosa: #d84d7a;
+      --inbursa-azul: #439524;
+      --inbursa-azul-hover: #36801d;
+      --inbursa-azul-pressed: #2a6216;
+      --aban-burgundy: #439524;
+      --aban-red: #439524;
+      --numia-azul: #439524;
+      --numia-azul-oscuro: #2a6216;
+      --numia-azul-claro: #e8f3e4;
+      --numia-azul-muy-claro: #f3faf1;
+      --numia-success: #439524;
+      --numia-text: #333333;
+      --numia-text-light: #5c5c5c;
+      --numia-border: #d4e5cf;
+      --numia-bg: #f1f4f7;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Lato', system-ui, sans-serif;
+      background: var(--numia-bg);
+      color: var(--numia-text);
+      min-height: 100vh;
+      display: flex;
+      gap: 2rem;
+      padding: 2rem;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+    
+    /* Contenedor del tótem (solo panel cliente â€” Banca Inbursa) */
+    .totem-container {
+      max-width: 600px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(51, 51, 51, 0.08);
+      overflow: hidden;
+      position: relative;
+      height: calc(100vh - 4rem);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    
+    .totem-header {
+      background: #ffffff;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e8eef2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .totem-header .totem-brand-logo {
+      height: 48px;
+      max-width: 240px;
+      width: auto;
+      object-fit: contain;
+      object-position: left center;
+    }
+    
+    .totem-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--numia-text);
+    }
+    
+    .totem-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: default;
+      user-select: none;
+      opacity: 0.92;
+    }
+    
+    .totem-nav-link .bi-chevron-down {
+      font-size: 0.65rem;
+      opacity: 0.85;
+    }
+    
+    .totem-logo {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 1.2rem;
+    }
+    
+    .totem-content {
+      flex: 1;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 0;
+    }
+    
+    /* Pantalla 0: Elección inicial (sucursal / generar cita) */
+    .screen-eleccion-inicial {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+    
+    .screen-eleccion-inicial .hero-badge {
+      display: inline-block;
+      background: var(--falabella-rosa);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.02em;
+    }
+    
+    .screen-eleccion-inicial h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--numia-text);
+      margin-bottom: 0.65rem;
+      line-height: 1.25;
+    }
+    
+    .screen-eleccion-inicial .instruction {
+      font-size: 0.95rem;
+      color: var(--numia-text-light);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+      max-width: 26rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero-carousel-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      margin-top: 1.35rem;
+    }
+    
+    .hero-carousel-dots .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d8dee6;
+      flex-shrink: 0;
+    }
+    
+    .hero-carousel-dots .dot.active {
+      width: 22px;
+      border-radius: 9999px;
+      background: var(--falabella-verde);
+    }
+    
+    .btn-paso-inicial {
+      width: 100%;
+      display: block;
+      margin-top: 0.85rem;
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid transparent;
+    }
+    
+    .btn-paso-inicial:first-of-type {
+      margin-top: 0;
+    }
+    
+    .btn-paso-inicial--sucursal {
+      background: var(--aban-burgundy);
+      color: #ffffff;
+      border-color: var(--aban-burgundy);
+    }
+    
+    .btn-paso-inicial--sucursal:hover {
+      background: var(--inbursa-azul-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(67, 149, 36, 0.35);
+    }
+    
+    .btn-paso-inicial--cita {
+      background: #ffffff;
+      color: var(--inbursa-azul);
+      border-color: var(--inbursa-azul);
+    }
+    
+    .btn-paso-inicial--cita:hover {
+      background: var(--numia-azul-muy-claro);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 149, 36, 0.2);
+    }
+    
+    #screenForm {
+      display: none;
+    }
+    
+    #screenAgendaCita {
+      display: none;
+      width: 100%;
+      max-width: 520px;
+    }
+    
+    .screen-agenda-cita {
+      text-align: left;
+    }
+    
+    .screen-agenda-cita .agenda-titulo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--numia-text);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .screen-agenda-cita .agenda-titulo i {
+      color: var(--aban-red);
+    }
+    
+    .screen-agenda-cita .cita-toolbar {
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--numia-border);
+    }
+    
+    .screen-agenda-cita .form-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--numia-text);
+      margin-bottom: 0.35rem;
+    }
+    
+    .screen-agenda-cita .form-select,
+    .screen-agenda-cita .form-control {
+      border-radius: 12px;
+      border: 1px solid var(--numia-border);
+      font-size: 0.95rem;
+    }
+    
+    .screen-agenda-cita .form-select:focus,
+    .screen-agenda-cita .form-control:focus {
+      border-color: var(--aban-burgundy);
+      box-shadow: 0 0 0 0.2rem rgba(67, 149, 36, 0.12);
+    }
+    
+    
+    #citaSlots {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+      gap: 0.5rem;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 0.25rem 0.25rem 0.5rem 0;
+    }
+    
+    #citaSlots .cita-slot-btn {
+      border-radius: 12px;
+      border: 1px solid rgba(67, 149, 36, 0.22);
+      background: #ffffff;
+      color: var(--numia-text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.5rem 0.35rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      font-family: inherit;
+    }
+    
+    #citaSlots .cita-slot-btn:hover {
+      background: var(--numia-azul-muy-claro);
+      border-color: rgba(67, 149, 36, 0.35);
+    }
+    
+    #citaSlots .cita-slot-btn.active {
+      background: var(--aban-red);
+      color: #ffffff;
+      border-color: var(--aban-red);
+    }
+    
+    .screen-agenda-cita .cita-leyenda {
+      font-size: 0.8rem;
+      color: var(--numia-text-light);
+      margin-top: 0.5rem;
+    }
+    
+    .screen-agenda-cita .btn-continuar-agenda {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.95rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      border: none;
+      border-radius: 9999px;
+      background: var(--aban-red);
+      color: #ffffff;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    
+    .screen-agenda-cita .btn-continuar-agenda:hover:not(:disabled) {
+      background: var(--inbursa-azul-hover);
+      transform: translateY(-1px);
+    }
+    
+    .screen-agenda-cita .btn-continuar-agenda:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    
+    .screen-agenda-cita .btn-volver-agenda {
+      background: none;
+      border: none;
+      color: var(--aban-burgundy);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      margin-bottom: 0.75rem;
+      font-family: inherit;
+    }
+    
+    .screen-agenda-cita .btn-volver-agenda:hover {
+      color: var(--aban-red);
+    }
+    
+    #citaAlertAgenda.alert {
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+    
+    /* Pantalla 1: Formulario (Nombre, Apellido, ID/CURP, Email) */
+    .screen-form {
+      width: 100%;
+      max-width: 500px;
+      text-align: left;
+    }
+    
+    .screen-form h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--numia-text);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    
+    .screen-form .instruction {
+      font-size: 0.95rem;
+      color: var(--numia-text-light);
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+    
+    .screen-form .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .screen-form .form-group label {
+      display: block;
+      font-weight: 600;
+      color: var(--numia-text);
+      margin-bottom: 0.35rem;
+      font-size: 0.9rem;
+    }
+    
+    .screen-form .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--numia-border);
+      border-radius: 12px;
+      font-size: 1rem;
+      color: var(--numia-text);
+      transition: border-color 0.2s;
+    }
+    
+    .screen-form .form-group input:focus {
+      outline: none;
+      border-color: var(--numia-azul);
+    }
+    
+    .screen-form .form-group input::placeholder {
+      color: var(--numia-text-light);
+      opacity: 0.8;
+    }
+    
+    .screen-form .btn-continuar-form {
+      width: 100%;
+      margin-top: 1.25rem;
+      background: var(--aban-red);
+      color: #ffffff;
+      border: none;
+      border-radius: 9999px;
+      padding: 0.95rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    
+    .screen-form .btn-continuar-form:hover {
+      background: var(--inbursa-azul-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 149, 36, 0.3);
+    }
+    
+    .screen-form .form-error {
+      color: #dc2626;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    
+    /* Pantalla 2: Opciones de atención */
+    .screen-opciones {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      display: none;
+    }
+    
+    .screen-opciones.active {
+      display: block;
+    }
+    
+    .screen-opciones h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--numia-text);
+      margin-bottom: 0.5rem;
+    }
+    
+    .screen-opciones .subtitle {
+      font-size: 0.95rem;
+      color: var(--numia-text-light);
+      margin-bottom: 1rem;
+    }
+    
+    .opciones-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: stretch;
+    }
+    
+    .opcion-card {
+      background: #ffffff;
+      border: 2px solid var(--numia-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .opcion-card.videollamada {
+      padding: 1.5rem 1.25rem;
+    }
+    
+    .opcion-card.videollamada .opcion-icon {
+      font-size: 3rem;
+    }
+    
+    .opcion-card.videollamada .opcion-title {
+      font-size: 1.3rem;
+    }
+    
+    .opcion-card.presencial {
+      padding: 1rem;
+    }
+    
+    .opcion-card.presencial .opcion-icon {
+      font-size: 2rem;
+    }
+    
+    .opcion-card.presencial .opcion-title {
+      font-size: 1rem;
+    }
+    
+    .opcion-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .opcion-card.videollamada {
+      border-color: var(--aban-red);
+      border-width: 2px;
+      background: linear-gradient(135deg, #ffffff 0%, #e0f5ea 100%);
+    }
+    
+    .opcion-card.videollamada:hover {
+      border-color: var(--aban-red);
+      box-shadow: 0 8px 28px rgba(67, 149, 36, 0.18);
+    }
+    
+    .opcion-card.presencial {
+      border-color: var(--aban-burgundy);
+      background: linear-gradient(135deg, #f5faf7 0%, #d4eedd 100%);
+    }
+    
+    .opcion-card.presencial:hover {
+      border-color: var(--aban-burgundy);
+      box-shadow: 0 8px 28px rgba(67, 149, 36, 0.16);
+    }
+    
+    .opcion-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .opcion-card.disabled:hover {
+      transform: none;
+    }
+    
+    .opcion-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .opcion-card.videollamada .opcion-icon {
+      color: var(--aban-red);
+    }
+    
+    .opcion-card.presencial .opcion-icon {
+      color: var(--aban-burgundy);
+    }
+    
+    .opcion-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--numia-text);
+      margin-bottom: 0.25rem;
+      line-height: 1.25;
+    }
+    
+    .opcion-title.opcion-title--multiline {
+      font-size: 0.98rem;
+    }
+    
+    .opcion-badge {
+      display: inline-block;
+      background: var(--falabella-rosa);
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.35rem 0.65rem;
+      border-radius: 9999px;
+      margin-top: 0.25rem;
+    }
+    
+    .opcion-badge.less-recommended {
+      background: var(--aban-burgundy);
+      color: #ffffff;
+    }
+    
+    .opcion-desc {
+      font-size: 0.75rem;
+      color: var(--numia-text-light);
+      margin-top: 0.25rem;
+    }
+    
+    /* Pantalla 3: Confirmación */
+    .screen-confirmacion {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      display: none;
+    }
+    
+    .screen-confirmacion.active {
+      display: block;
+    }
+    
+    .screen-confirmacion .success-icon {
+      font-size: 3.5rem;
+      color: var(--aban-red);
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .screen-confirmacion h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--numia-text);
+      margin-bottom: 0.75rem;
+    }
+    
+    .screen-confirmacion .message {
+      font-size: 1rem;
+      color: var(--numia-text-light);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    
+    .tiempo-espera {
+      background: var(--numia-azul-muy-claro);
+      border: 2px solid rgba(67, 149, 36, 0.2);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .tiempo-espera-label {
+      font-size: 0.8rem;
+      color: var(--numia-text-light);
+      margin-bottom: 0.25rem;
+    }
+    
+    .tiempo-espera-valor {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--aban-burgundy);
+    }
+    
+    .video-link-container {
+      margin-top: 2rem;
+    }
+    
+    .btn-video {
+      background: var(--aban-red);
+      color: #ffffff;
+      border: none;
+      border-radius: 9999px;
+      padding: 1rem 2rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+    
+    .btn-video:hover {
+      background: var(--inbursa-azul-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 149, 36, 0.35);
+      color: #ffffff;
+    }
+    
+    .screen-expediente-pendiente {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      display: none;
+    }
+    
+    .screen-expediente-pendiente.active {
+      display: block;
+    }
+    
+    .screen-expediente-pendiente .expediente-icon {
+      font-size: 3rem;
+      color: var(--aban-burgundy);
+      margin-bottom: 1rem;
+    }
+    
+    .screen-expediente-pendiente h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--numia-text);
+      margin-bottom: 0.75rem;
+    }
+    
+    .screen-expediente-pendiente .expediente-message {
+      font-size: 0.98rem;
+      color: var(--numia-text-light);
+      line-height: 1.55;
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+    
+    .screen-expediente-pendiente .expediente-folio-ref {
+      font-size: 0.95rem;
+      color: var(--numia-text);
+      margin-bottom: 1.5rem;
+    }
+    
+    .screen-expediente-pendiente .expediente-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      align-items: stretch;
+    }
+    
+    .btn-expediente {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.95rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: 9999px;
+      cursor: pointer;
+      text-decoration: none;
+      border: 2px solid transparent;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn-expediente--docs {
+      background: #ffffff;
+      color: var(--aban-burgundy);
+      border-color: var(--aban-burgundy);
+    }
+    
+    .btn-expediente--docs:hover {
+      background: var(--numia-azul-muy-claro);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(67, 149, 36, 0.18);
+    }
+    
+    .btn-expediente--wa {
+      background: #25d366;
+      color: #ffffff;
+      border-color: #25d366;
+    }
+    
+    .btn-expediente--wa:hover {
+      background: #1fb855;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
+    }
+    
+    @media (max-width: 560px) {
+      .totem-header {
+        flex-wrap: wrap;
+        row-gap: 0.75rem;
+      }
+      
+      .totem-nav {
+        width: 100%;
+        justify-content: flex-end;
+        font-size: 0.82rem;
+        gap: 0.85rem;
+      }
+    }
+    
+    /* Log container (igual que app-cliente.html) */
+    .log-container {
+      flex: 1;
+      min-width: 400px;
+      max-width: 500px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      display: none;
+      flex-direction: column;
+      height: calc(100vh - 4rem);
+      overflow: hidden;
+    }
+    
+    .log-container.visible {
+      display: flex;
+    }
+    
+    .log-header {
+      background: #2d2d2d;
+      padding: 1rem 1.5rem;
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-bottom: 2px solid #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    
+    .log-header::before {
+      content: 'â–¶';
+      color: #ffffff;
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
+    }
+    
+    .log-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    
+    .log-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .log-content::-webkit-scrollbar-track {
+      background: #2d2d2d;
+    }
+    
+    .log-content::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 4px;
+    }
+    
+    .log-content::-webkit-scrollbar-thumb:hover {
+      background: #777;
+    }
+    
+    .atencion-section {
+      background: transparent !important;
+      border-radius: 0;
+      padding: 0;
+      margin: 0;
+      box-shadow: none;
+      display: none;
+    }
+    
+    .atencion-section.active {
+      display: block;
+    }
+    
+    .steps-container {
+      margin: 0;
+    }
+    
+    .step-item {
+      background: #2d2d2d;
+      border-left: 3px solid #ffffff;
+      border-radius: 4px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .step-item.completed {
+      border-left-color: #ffffff;
+      background: #2d2d2d;
+    }
+    
+    .step-item.processing {
+      border-left-color: #ffaa00;
+      background: #3a2e1e;
+    }
+    
+    .step-title {
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .step-output-content {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      color: #ffffff;
+    }
+    
+    .summary-section {
+      background: #2d2d2d;
+      border-left: 3px solid #ffffff;
+      border-radius: 4px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: #ffffff;
+    }
+    
+    .summary-title {
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .summary-content {
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+      white-space: pre-line;
+    }
+    
+    .conversation-output {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .conversation-line {
+      background: #1a1a1a;
+      border-left: 2px solid #444;
+      color: #ffffff;
+    }
+    
+    .conversation-line.success {
+      background: #2d2d2d;
+      border-left-color: #ffffff;
+      color: #ffffff;
+    }
+    
+    .conversation-line.error {
+      background: #3a1e1e;
+      border-left-color: #ff4444;
+      color: #ff8888;
+    }
+    
+    .conversation-line.info {
+      background: #1e1e3a;
+      border-left-color: #4444ff;
+    }
+    
+    @media (max-width: 1024px) {
+      body {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      
+      .totem-container {
+        max-width: 100%;
+        height: 50vh;
+      }
+      
+      .log-container {
+        min-width: 100%;
+        max-width: 100%;
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Contenedor del tótem -->
+  <div class="totem-container">
+    <!-- Header -->
+    <div class="totem-header">
+      <img src="images/Logo_Falabella.svg" alt="Agencia de Seguros Falabella" class="totem-brand-logo" width="240" height="48">
+      <nav class="totem-nav" aria-label="Navegación">
+        <span class="totem-nav-link">Seguros <i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+        <span class="totem-nav-link">Promociones</span>
+      </nav>
+    </div>
+    
+    <!-- Contenido del tótem -->
+    <div class="totem-content">
+      <!-- Pantalla 0: Sucursal o cita -->
+      <div class="screen-eleccion-inicial" id="screenEleccionInicial">
+        <span class="hero-badge">Tu vida es única</span>
+        <h1>Protección ante imprevistos</h1>
+        <div class="instruction">No puedes evitar lo inesperado, pero sí proteger a tu familia. El mejor regalo no es material: es tranquilidad.</div>
+        <button type="button" class="btn-paso-inicial btn-paso-inicial--sucursal" id="btnEstoyEnSucursal">
+          Estoy en la sucursal
+        </button>
+        <button type="button" class="btn-paso-inicial btn-paso-inicial--cita" id="btnGenerarCita">
+          Generar cita
+        </button>
+        <div class="hero-carousel-dots" aria-hidden="true">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+      
+      <!-- Pantalla agenda (solo flujo "Generar cita", antes del formulario) -->
+      <div id="screenAgendaCita" class="screen-agenda-cita">
+        <button type="button" class="btn-volver-agenda" id="btnVolverAgenda">← Volver</button>
+        <h2 class="agenda-titulo"><i class="bi bi-calendar2-week"></i> Agenda tu cita</h2>
+        <div id="citaAlertAgenda" class="alert d-none" role="alert"></div>
+        <div class="cita-toolbar">
+          <input type="hidden" id="citaScheduleIdHidden" value="" aria-hidden="true" />
+          <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="citaBranch">Sede</label>
+              <select id="citaBranch" class="form-select" disabled>
+                <option value="">Selecciona sucursal...</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="citaFecha">Fecha</label>
+              <input id="citaFecha" type="date" class="form-control" disabled />
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Horarios disponibles</label>
+          <div id="citaSlots"></div>
+          <p class="cita-leyenda mb-0" id="citaLeyendaAgenda">Seleccione sede y fecha para ver horarios.</p>
+        </div>
+        <button type="button" class="btn-continuar-agenda" id="btnContinuarAgenda" disabled>Continuar</button>
+      </div>
+      
+      <!-- Pantalla 1: Formulario (Nombre, Apellido, ID/CURP, Email) -->
+      <div class="screen-form" id="screenForm">
+        <h1>Bienvenido</h1>
+        <div class="instruction">Complete sus datos para continuar</div>
+        
+        <form id="formDatos" novalidate>
+          <div class="form-group">
+            <label for="inputNombre">Nombre</label>
+            <input type="text" id="inputNombre" name="nombre" placeholder="Ingrese su nombre" required>
+            <div class="form-error" id="errorNombre" style="display: none;"></div>
+          </div>
+          <div class="form-group">
+            <label for="inputApellido">Apellido</label>
+            <input type="text" id="inputApellido" name="apellido" placeholder="Ingrese su apellido" required>
+            <div class="form-error" id="errorApellido" style="display: none;"></div>
+          </div>
+          <div class="form-group">
+            <label for="inputDni">ID/CURP</label>
+            <input type="text" id="inputDni" name="dni" placeholder="Ingrese su ID/CURP" required>
+            <div class="form-error" id="errorDni" style="display: none;"></div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail">Email</label>
+            <input type="email" id="inputEmail" name="email" placeholder="Ingrese su email" required>
+            <div class="form-error" id="errorEmail" style="display: none;"></div>
+          </div>
+          <div class="form-group">
+            <label for="inputTelefono">Teléfono</label>
+            <input type="tel" id="inputTelefono" name="telefono" placeholder="10 dígitos, ej: 5610238726" inputmode="numeric" autocomplete="tel" required>
+            <div class="form-error" id="errorTelefono" style="display: none;"></div>
+          </div>
+          <button type="submit" class="btn-continuar-form" id="btnContinuarForm">Continuar</button>
+        </form>
+      </div>
+      
+      <!-- Pantalla 2: Opciones de atención -->
+      <div class="screen-opciones" id="screenOpciones">
+        <h2>Seleccione su preferencia</h2>
+        <div class="subtitle">Elija cómo desea ser atendido</div>
+        
+        <div class="opciones-grid" id="opcionesGrid">
+          <!-- Se llenará dinámicamente -->
+        </div>
+      </div>
+      
+      <!-- Pantalla 3: Confirmación -->
+      <div class="screen-confirmacion" id="screenConfirmacion">
+        <div class="success-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h2>¡Atención solicitada!</h2>
+        <div class="message">
+          En breve uno de nuestros asesores lo atenderá.<br>
+          Por favor, manténgase en línea.
+        </div>
+        
+        <div class="tiempo-espera" id="tiempoEspera" style="display: none;">
+          <div class="tiempo-espera-label">Tiempo de espera estimado</div>
+          <div class="tiempo-espera-valor" id="tiempoEsperaValor">--</div>
+        </div>
+        
+        <div class="video-link-container" id="videoLinkContainer" style="display: none;">
+          <a href="#" id="btnVideoLink" class="btn-video" target="_blank">
+            <i class="bi bi-camera-video me-2"></i>Iniciar Videollamada
+          </a>
+        </div>
+      </div>
+      
+      <!-- Expediente desactualizado (intercepta respuesta Journey â€” no asigna turno) -->
+      <div class="screen-expediente-pendiente" id="screenExpedientePendiente">
+        <div class="expediente-icon">
+          <i class="bi bi-folder2-open"></i>
+        </div>
+        <h2>Actualización de expediente</h2>
+        <p class="expediente-message">
+          Para continuar con su trámite, necesitamos contar con su expediente al día. Le invitamos a completar la información requerida; nuestro equipo está disponible para orientarle con el proceso de forma ágil y segura.
+        </p>
+        <p class="expediente-folio-ref">Folio de referencia: <strong>220696</strong></p>
+        <div class="expediente-actions">
+          <button type="button" class="btn-expediente btn-expediente--docs" id="btnCargarDocumentosExpediente">
+            Cargar documentos
+          </button>
+          <a class="btn-expediente btn-expediente--wa" id="btnWhatsappExpediente" href="#" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-whatsapp"></i> Cargar vía Whatsapp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Contenedor de Logs a la derecha -->
+  <div class="log-container">
+    <div class="log-header">
+      Análisis del Agente
+    </div>
+    <div class="log-content">
+      <div id="atencionSection" class="atencion-section">
+        <div id="stepsContainer" class="steps-container">
+          <!-- Los pasos se agregarán aquí dinámicamente -->
+        </div>
+        
+        <div id="summarySection" class="summary-section" style="display: none;">
+          <div class="summary-title">
+            <i class="bi bi-check-circle-fill"></i>
+            Resumen del Análisis
+          </div>
+          <div id="summaryContent" class="summary-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Configuración de la API Journey Builder
+      const JOURNEY_API_URL = 'https://api.journeybuilder.numia.co/api/v1/run/38223ec2-6123-4e6e-862a-4945161ed221?stream=false';
+      const JOURNEY_API_KEY = 'sk-WfTsCY302RrciqoVRYAZWruD9mpyPKatAo8GU8tyzIM';
+      /** Interceptación: respuesta â€œcliente no encontrado por DNIâ€ â†’ expediente desactualizado (folio demo). */
+      const FOLIO_EXPEDIENTE_INBURSA = '220696';
+      const WA_EXPEDIENTE_E164 = '5215518624901';
+      /** Flujo "Estoy en la sucursal" + DNI demo: siempre videollamada (recomendada) + presencial; colas dedicadas. */
+      const DNI_SUCURSAL_DOBLE_ATENCION = '29328704';
+      const QUEUE_SUCURSAL_DNI_VIDEO = '17456';
+      const QUEUE_SUCURSAL_DNI_PRES = '17455';
+      /** Flujo cita + este DNI/ID: siempre muestra videollamada y presencial; al encolar usa payload enriquecido para Seguros Falabella (título "Cita generada"). */
+      const DNI_CITA_TURNO_DIRECTO = '240696';
+      
+      function normalizarTextoDeteccion(texto) {
+        return String(texto || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+      }
+      
+      /**
+       * Detecta respuestas tipo â€œcliente no localizado por DNIâ€ (redacción variable del Journey).
+       * Incluye variantes con â€œmás informaciónâ€, â€œasistirte mejorâ€, etc. No depende del valor del DNI.
+       */
+      function debeInterceptarExpedienteIncompleto(messageText) {
+        if (pasoInicialOrigen === 'cita' && String(formDni || '').trim() === DNI_CITA_TURNO_DIRECTO) return false;
+        if (!messageText || typeof messageText !== 'string') return false;
+        const t = normalizarTextoDeteccion(messageText);
+        const mencionaIdentidad =
+          t.includes('dni') || t.includes('cedula') || t.includes('documento de identidad') || t.includes('documento');
+        if (!mencionaIdentidad) return false;
+        const indicaNoEncontrado =
+          (t.includes('no se encontro') && (t.includes('cliente') || t.includes('ningun'))) ||
+          t.includes('no se encontro ningun cliente') ||
+          t.includes('ningun cliente con') ||
+          (t.includes('no encontramos') && t.includes('cliente')) ||
+          (t.includes('sin') && t.includes('cliente') && t.includes('registro'));
+        if (!indicaNoEncontrado) return false;
+        if (!indicaNoEncontrado) return false;
+        const indicaContextoOAccion =
+          t.includes('base de datos') ||
+          t.includes('nuestra base') ||
+          t.includes('verifica') ||
+          t.includes('proporciona') ||
+          t.includes('informacion adicional') ||
+          t.includes('mas informacion') ||
+          t.includes('más información') ||
+          t.includes('asistirte') ||
+          t.includes('asistir mejor') ||
+          t.includes('asistirte mejor') ||
+          t.includes('poder asistir');
+        /** Flujo Generar cita: si el mensaje ya indica â€œno encontradoâ€ con DNI, se aplica expediente aunque el API cambie el resto del texto. */
+        if (pasoInicialOrigen === 'cita') return true;
+        return indicaContextoOAccion;
+      }
+      
+      function textoResumenConsolaExpedienteDesactualizado() {
+        return (
+          'Cliente Banca Inbursa con expediente desactualizado.\n' +
+          'Se debe completar expediente para poder proceder con el trámite seleccionado.\n' +
+          'Folio: ' + FOLIO_EXPEDIENTE_INBURSA
+        );
+      }
+      
+      // Variables de estado (datos del formulario)
+      let formNombre = '';
+      let formApellido = '';
+      let formDni = '';
+      let formEmail = '';
+      let formTelefono = '';
+      /** 'sucursal' | 'cita' â€” elección del paso inicial (antes del formulario). */
+      let pasoInicialOrigen = null;
+      
+      function esSucursalDniDobleAtencionEspecial() {
+        return pasoInicialOrigen === 'sucursal' && String(formDni || '').trim() === DNI_SUCURSAL_DOBLE_ATENCION;
+      }
+      
+      function esCitaDniTurnoDirecto() {
+        return pasoInicialOrigen === 'cita' && String(formDni || '').trim() === DNI_CITA_TURNO_DIRECTO;
+      }
+      
+      /** ID/CURP demo: en cualquier flujo (sucursal o cita) siempre se ofrecen videollamada y presencial. */
+      function esDniDemoDobleCanal240696() {
+        return String(formDni || '').trim() === DNI_CITA_TURNO_DIRECTO;
+      }
+      
+      function soloDigitosTelefono(val) {
+        return String(val || '').replace(/\D/g, '');
+      }
+      
+      /**
+       * Cuerpo JSON para POST enqueue (Debmedia Filavirtual): mismo esquema que referencia workstation
+       * (firstName, lastName, cedulaIdentidad, email, phone, extraFields, customerExtraFields).
+       * Se incluye también `dni` por compatibilidad con integraciones legacy que esperen esa propiedad.
+       */
+      function construirExtraFieldsSeguros(opcion) {
+        const nom = escapeHtml(String(formNombre || '').trim());
+        const ape = escapeHtml(String(formApellido || '').trim());
+        const id = escapeHtml(String(formDni || '').trim());
+        const mail = escapeHtml(String(formEmail || '').trim());
+        const tel = escapeHtml(soloDigitosTelefono(formTelefono));
+        const datosClienteHtml =
+          '<table><tr><td>Nombre: ' + nom + '</td></tr><tr><td>Apellidos: ' + ape + '</td></tr><tr><td>ID/CURP: ' + id +
+          '</td></tr><tr><td>Email: ' + mail + '</td></tr><tr><td>Teléfono capturado: ' + tel + '</td></tr><tr><td>Preferencia idioma (demo): Español</td></tr><tr><td>Horario de contacto estimado (demo): 10:00–18:00</td></tr></table>';
+        
+        var base = {
+          'Tipo de solicitante': 'Persona física — prospecto cotización / alta de póliza (demo)',
+          'Producto / trámite': etiquetaTramiteParaMensaje(opcion),
+          'Datos de cliente': datosClienteHtml,
+          'Motivo del turno encolado': 'Atención humana especializada tras pre-captura en tótem',
+          Documentación:
+            "<a href='https://demo.seguros-falabella.app/ficha-demo' target='_blank' rel='noopener noreferrer'>Ficha consolidada cliente (demo)</a>"
+        };
+        
+        if (opcion === 'prestamos') {
+          return Object.assign({}, base, {
+            'Valor pre-procesado (vida)': 'Perfil riesgo bajo declarado • sin incapacidades reportadas • suma objetivo ~$2,500,000 MXN',
+            'Beneficios en cartera abierta': 'Opción combinada vida + TIPT (simulación demo)',
+            'Validaciones sugeridas al agente': 'PEP/FATCA en expediente rápido; confirmar ocupación declarada técnico mid-level',
+            'Qué omitir preguntando en línea':
+              'Contacto, nombre completo y producto solicitado — ya figuran en cola; priorizar precotización y documentos.',
+            'Próxima acción recomendada': 'Enviar cotización formal y agendar firma digital o cita médica corta.'
+          });
+        }
+        if (opcion === 'tarjetas') {
+          return Object.assign({}, base, {
+            'Vehículo (simulación)': 'Toyota Avanza 2020 • uso particular • Zona centro CDMX • Placas DEM-084',
+            'Cobertura pre-seleccionada': 'Amplia + Responsabilidad civil / Asistencias ampliadas (demo)',
+            'Historial uso y siniestralidad declarada': 'Sin siniestro total previo • Multas vigentes ninguna conocida • ~18,500 km/anio',
+            'Qué omitir preguntando en línea':
+              'Datos ID, teléfono y email — ya están en workstation; enfocarse en modelo exacto VIN opcional.',
+            'Próxima acción recomendada': 'Cotización fila preferente y envío PDF + enlace cobro inicial.'
+          });
+        }
+        if (opcion === 'inversiones') {
+          return Object.assign({}, base, {
+            'Inmueble (simulación)': 'Casa habitacional vertical • 138 m² • antigüedad 9 años • Guadalajara JAL',
+            'Valor reconstrucción orientativa': '$3,600,000 MXN (simulado — no vinculante)',
+            'Riesgos adicionales sugeridos': 'Terremoto región media • Contenidos $450,000 MXN',
+            'Qué omitir preguntando en línea':
+              'Identidad y contacto ya validados en formulario; solicitar solo finiquitos o hipoteca si aplica.',
+            'Próxima acción recomendada': 'Inspección virtual y emisión de carátula con cláusulas RC terceros.'
+          });
+        }
+        return base;
+      }
+      
+      function construirPayloadEnqueueTurno() {
+        var opcion = opcionTramiteJourney || 'prestamos';
+        var extraMap = construirExtraFieldsSeguros(opcion);
+        var filaExtra = Object.assign({ showable: [{ in: 'workstation', format: 'both' }] }, extraMap);
+        return {
+          firstName: String(formNombre || '').trim(),
+          lastName: String(formApellido || '').trim(),
+          cedulaIdentidad: String(formDni || '').trim(),
+          email: String(formEmail || '').trim(),
+          phone: soloDigitosTelefono(formTelefono),
+          dni: String(formDni || '').trim(),
+          extraFields: [filaExtra],
+          customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
+        };
+      }
+      
+      /** prestamos | tarjetas | inversiones â€” último trámite elegido (para cola de videollamada). */
+      let opcionTramiteJourney = null;
+      let analisisCompletado = false;
+      let recomendacionVideollamada = false;
+      let messageText = null;
+      
+      // Elementos del DOM
+      const screenForm = document.getElementById('screenForm');
+      const screenOpciones = document.getElementById('screenOpciones');
+      const screenConfirmacion = document.getElementById('screenConfirmacion');
+      const formDatos = document.getElementById('formDatos');
+      const btnContinuarForm = document.getElementById('btnContinuarForm');
+      const opcionesGrid = document.getElementById('opcionesGrid');
+      const atencionSection = document.getElementById('atencionSection');
+      const stepsContainer = document.getElementById('stepsContainer');
+      const summarySection = document.getElementById('summarySection');
+      const summaryContent = document.getElementById('summaryContent');
+      const logContainer = document.querySelector('.log-container');
+      const screenExpedientePendiente = document.getElementById('screenExpedientePendiente');
+      const screenEleccionInicial = document.getElementById('screenEleccionInicial');
+      
+      function mostrarPantallaExpedienteDesactualizado() {
+        if (screenEleccionInicial) screenEleccionInicial.style.display = 'none';
+        if (screenAgendaCita) screenAgendaCita.style.display = 'none';
+        if (screenForm) screenForm.style.display = 'none';
+        if (screenOpciones) screenOpciones.classList.remove('active');
+        screenConfirmacion.classList.remove('active');
+        const waMsg = 'Quiero completar mi expediente de Banca Inbursa, mi folio es: ' + FOLIO_EXPEDIENTE_INBURSA;
+        const btnWa = document.getElementById('btnWhatsappExpediente');
+        if (btnWa) btnWa.href = 'https://wa.me/' + WA_EXPEDIENTE_E164 + '?text=' + encodeURIComponent(waMsg);
+        if (screenExpedientePendiente) screenExpedientePendiente.classList.add('active');
+      }
+      const screenAgendaCita = document.getElementById('screenAgendaCita');
+      const btnEstoyEnSucursal = document.getElementById('btnEstoyEnSucursal');
+      const btnGenerarCita = document.getElementById('btnGenerarCita');
+      const btnVolverAgenda = document.getElementById('btnVolverAgenda');
+      const btnContinuarAgenda = document.getElementById('btnContinuarAgenda');
+      const inputCitaScheduleIdHidden = document.getElementById('citaScheduleIdHidden');
+      const selCitaBranch = document.getElementById('citaBranch');
+      const inputCitaFecha = document.getElementById('citaFecha');
+      const citaSlotsWrap = document.getElementById('citaSlots');
+      const citaAlertAgenda = document.getElementById('citaAlertAgenda');
+      const citaLeyendaAgenda = document.getElementById('citaLeyendaAgenda');
+      
+      let citaSchedulesList = [];
+      let citaSelectedSlot = null;
+      let citaScheduleIdFinal = null;
+      let citaBranchIdFinal = null;
+      /** Timeouts de la consola de agenda (demo sin Journey). */
+      let citaConsolaTimers = [];
+      
+      const CFG_CITAS = window.APP_CONFIG_CITAS || {};
+      
+      function pad2(n) { return String(n).padStart(2, '0'); }
+      
+      function citaSetAlert(type, msg) {
+        if (!citaAlertAgenda) return;
+        citaAlertAgenda.className = 'alert alert-' + type;
+        citaAlertAgenda.textContent = msg;
+        citaAlertAgenda.classList.remove('d-none');
+      }
+      
+      function citaClearAlert() {
+        if (!citaAlertAgenda) return;
+        citaAlertAgenda.className = 'alert d-none';
+        citaAlertAgenda.textContent = '';
+      }
+      
+      function minutesOffsetFromSuffix(suffix) {
+        const m = suffix.match(/^([+-])(\d{2})(\d{2})$/);
+        if (!m) return 0;
+        const sign = m[1] === '-' ? -1 : 1;
+        return sign * (parseInt(m[2], 10) * 60 + parseInt(m[3], 10));
+      }
+      
+      function buildEndAtLikeStart(startAtStr, addMinutes) {
+        const offsetMatch = startAtStr.match(/([+-]\d{4}|Z)$/);
+        const offsetSuffix = offsetMatch ? offsetMatch[1] : 'Z';
+        const offsetMin = offsetSuffix === 'Z' ? 0 : minutesOffsetFromSuffix(offsetSuffix);
+        const msStart = new Date(startAtStr).getTime();
+        const msEnd = msStart + (addMinutes * 60000);
+        const d = new Date(msEnd + offsetMin * 60000);
+        const Y = d.getUTCFullYear();
+        const M = d.getUTCMonth() + 1;
+        const D = d.getUTCDate();
+        const H = d.getUTCHours();
+        const m = d.getUTCMinutes();
+        const S = d.getUTCSeconds();
+        const p = function(n) { return String(n).padStart(2, '0'); };
+        return Y + '-' + p(M) + '-' + p(D) + 'T' + p(H) + ':' + p(m) + ':' + p(S) + offsetSuffix;
+      }
+      
+      function resetCitaAgendaUi() {
+        citaClearAlert();
+        citaSelectedSlot = null;
+        citaScheduleIdFinal = null;
+        citaBranchIdFinal = null;
+        if (inputCitaScheduleIdHidden) inputCitaScheduleIdHidden.value = '';
+        if (selCitaBranch) {
+          selCitaBranch.innerHTML = '<option value="">Selecciona sucursal...</option>';
+          selCitaBranch.disabled = true;
+        }
+        if (inputCitaFecha) {
+          inputCitaFecha.value = '';
+          inputCitaFecha.disabled = true;
+        }
+        if (citaSlotsWrap) citaSlotsWrap.innerHTML = '';
+        if (btnContinuarAgenda) btnContinuarAgenda.disabled = true;
+        if (citaLeyendaAgenda) citaLeyendaAgenda.textContent = 'Seleccione sede y fecha para ver horarios.';
+      }
+      
+      /** Busca agenda de citas por nombre (prioridad: Seguro de vida, retiro voluntario demo, tarjeta crédito, hipotecario). */
+      function encontrarAgendaParaCita(list) {
+        if (!Array.isArray(list)) return null;
+        function norm(s) {
+          return String(s || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+        }
+        var matchers = [
+          function(n) { return n.indexOf('prestamo') !== -1 && n.indexOf('personal') !== -1; },
+          function(n) { return n.indexOf('retiro') !== -1 && n.indexOf('volunt') !== -1; },
+          function(n) { return n.indexOf('tarjeta') !== -1 && n.indexOf('credito') !== -1; },
+          function(n) {
+            return n.indexOf('hipotecario') !== -1 || (n.indexOf('hipoteca') !== -1 && n.indexOf('credito') !== -1);
+          }
+        ];
+        var mi, mj, n;
+        for (mi = 0; mi < matchers.length; mi++) {
+          for (mj = 0; mj < list.length; mj++) {
+            n = norm(list[mj].name);
+            if (matchers[mi](n)) return list[mj];
+          }
+        }
+        return null;
+      }
+      
+      function rellenarSedesParaAgenda(sched) {
+        selCitaBranch.innerHTML = '<option value="">Selecciona sucursal...</option>';
+        if (!sched || !Array.isArray(sched.branches)) {
+          citaSetAlert('danger', 'La agenda seleccionada no tiene sucursales asociadas.');
+          selCitaBranch.disabled = true;
+          return;
+        }
+        var seen = new Set();
+        sched.branches.forEach(function(b) {
+          if (!seen.has(b.id)) {
+            selCitaBranch.insertAdjacentHTML('beforeend', '<option value="' + b.id + '">' + b.name + '</option>');
+            seen.add(b.id);
+          }
+        });
+        selCitaBranch.disabled = false;
+        citaClearAlert();
+      }
+      
+      /** Muestra la agenda después de elegir trámite (solo flujo Generar cita). */
+      function mostrarPantallaAgenda() {
+        if (screenEleccionInicial) screenEleccionInicial.style.display = 'none';
+        if (screenForm) screenForm.style.display = 'none';
+        if (screenOpciones) screenOpciones.classList.remove('active');
+        if (screenAgendaCita) screenAgendaCita.style.display = 'block';
+        resetCitaAgendaUi();
+        iniciarConsolaAgendaDinamica();
+        loadCitaSchedules();
+      }
+      
+      /** Volver desde la agenda a la pantalla de los tres trámites (sin salir del flujo cita). */
+      function volverDesdeAgendaATramites() {
+        ocultarConsolaAgendaEstatica();
+        citaSchedulesList = [];
+        resetCitaAgendaUi();
+        if (screenAgendaCita) screenAgendaCita.style.display = 'none';
+        if (screenOpciones) screenOpciones.classList.add('active');
+      }
+      
+      function citaConsolaClearTimers() {
+        citaConsolaTimers.forEach(function(t) { clearTimeout(t); });
+        citaConsolaTimers = [];
+      }
+      
+      function citaConsolaRemoverBloqueConsultaHorarios() {
+        var el2 = document.getElementById('citaConsolaBloque2');
+        if (el2) el2.remove();
+      }
+      
+      function citaConsolaAgregarBloqueConsultaHorarios() {
+        if (!stepsContainer || document.getElementById('citaConsolaBloque2')) return;
+        var div = document.createElement('div');
+        div.className = 'step-item completed';
+        div.id = 'citaConsolaBloque2';
+        div.innerHTML =
+          '<div class="step-title">Score_table</div>' +
+          '<div class="step-output-content">' +
+          '<em style="color: #ffffff;">Consultando horarios en esa fecha.</em>' +
+          '</div>';
+        stepsContainer.appendChild(div);
+      }
+      
+      /** Consola derecha (mismo estilo que Journey): paso 1 al entrar; paso 2 al consultar horarios (sede/fecha). */
+      function iniciarConsolaAgendaDinamica() {
+        citaConsolaClearTimers();
+        if (summarySection) summarySection.style.display = 'none';
+        if (summaryContent) summaryContent.textContent = '';
+        if (logContainer) logContainer.classList.add('visible');
+        if (atencionSection) {
+          atencionSection.style.display = 'block';
+          atencionSection.classList.add('active');
+        }
+        if (stepsContainer) {
+          stepsContainer.innerHTML =
+            '<div class="step-item processing" id="citaConsolaBloque1">' +
+            '<div class="step-title">Checkonboardingcondatos</div>' +
+            '<div class="step-output-content">' +
+            '<em style="color: #ffffff;">Ejecutando herramienta...</em>' +
+            '</div></div>';
+        }
+        var tid = setTimeout(function() {
+          var b1 = document.getElementById('citaConsolaBloque1');
+          if (b1) {
+            b1.className = 'step-item completed';
+            var out = b1.querySelector('.step-output-content');
+            if (out) {
+              out.innerHTML = '<em style="color: #ffffff;">Herramienta ejecutada correctamente</em>';
+            }
+          }
+        }, 2000);
+        citaConsolaTimers.push(tid);
+      }
+      
+      function ocultarConsolaAgendaEstatica() {
+        citaConsolaClearTimers();
+        if (logContainer) logContainer.classList.remove('visible');
+        if (atencionSection) {
+          atencionSection.classList.remove('active');
+          atencionSection.style.display = 'none';
+        }
+        if (summarySection) summarySection.style.display = 'none';
+        if (stepsContainer) stepsContainer.innerHTML = '';
+        if (summaryContent) summaryContent.textContent = '';
+      }
+      
+      async function loadCitaSchedules() {
+        const SVC_LIST = CFG_CITAS.SVC_LIST || 'https://citas2.debmedia.com/api/v2/reducedSchedules';
+        const API_TOKEN = CFG_CITAS.API_TOKEN || '';
+        try {
+          const res = await fetch(SVC_LIST, { headers: { 'x-api-token': API_TOKEN } });
+          if (!res.ok) throw new Error('No se pudieron obtener las agendas (' + res.status + ')');
+          citaSchedulesList = await res.json();
+          var schedCita = encontrarAgendaParaCita(citaSchedulesList);
+          if (!schedCita) {
+            citaSetAlert('danger', 'No se encontró una agenda de citas compatible (Seguro de vida, Seguro de auto, Seguro de vivienda o agenda demo).');
+            return;
+          }
+          if (inputCitaScheduleIdHidden) inputCitaScheduleIdHidden.value = String(schedCita.id);
+          rellenarSedesParaAgenda(schedCita);
+          const today = new Date();
+          const ymd = function(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+          if (inputCitaFecha) {
+            inputCitaFecha.min = ymd(today);
+            inputCitaFecha.disabled = false;
+          }
+          selCitaBranch.onchange = handleCitaBranchOrDateChange;
+          inputCitaFecha.onchange = handleCitaBranchOrDateChange;
+        } catch (err) {
+          citaSetAlert('danger', err.message || String(err));
+        }
+      }
+      
+      async function handleCitaBranchOrDateChange() {
+        citaClearAlert();
+        citaSlotsWrap.innerHTML = '';
+        citaSelectedSlot = null;
+        if (btnContinuarAgenda) btnContinuarAgenda.disabled = true;
+        const schedId = inputCitaScheduleIdHidden ? inputCitaScheduleIdHidden.value : '';
+        const branchId = selCitaBranch.value;
+        const dateStr = inputCitaFecha.value;
+        if (!schedId || !branchId || !dateStr) {
+          citaConsolaRemoverBloqueConsultaHorarios();
+          return;
+        }
+        citaConsolaRemoverBloqueConsultaHorarios();
+        citaConsolaAgregarBloqueConsultaHorarios();
+        const AVAIL_BASE = CFG_CITAS.AVAIL_BASE || 'https://citas2.debmedia.com/api/v2/schedules';
+        const API_TOKEN = CFG_CITAS.API_TOKEN || '';
+        try {
+          const url = AVAIL_BASE + '/' + encodeURIComponent(schedId) + '/branch/' + encodeURIComponent(branchId) + '/availability?strDate=' + encodeURIComponent(dateStr);
+          const res = await fetch(url, { headers: { 'x-api-token': API_TOKEN } });
+          if (!res.ok) throw new Error('No se pudo obtener disponibilidad (' + res.status + ')');
+          const data = await res.json();
+          const slots = Array.isArray(data) ? data : (Array.isArray(data.slots) ? data.slots : []);
+          if (slots.length === 0) {
+            citaSetAlert('info', 'No hay horarios disponibles para la fecha seleccionada.');
+            return;
+          }
+          slots.forEach(function(slot) {
+            const hora = slot.zonedStartDate.substring(11, 16);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'cita-slot-btn';
+            btn.textContent = hora;
+            btn.addEventListener('click', function() {
+              citaSlotsWrap.querySelectorAll('.cita-slot-btn').forEach(function(b) { b.classList.remove('active'); });
+              btn.classList.add('active');
+              citaSelectedSlot = { startAt: slot.zonedStartDate, defaultDuration: slot.defaultDuration || 0 };
+              if (btnContinuarAgenda) btnContinuarAgenda.disabled = false;
+            });
+            citaSlotsWrap.appendChild(btn);
+          });
+          if (citaLeyendaAgenda) citaLeyendaAgenda.textContent = 'Seleccione un horario y pulse Continuar.';
+        } catch (err) {
+          citaSetAlert('danger', err.message || String(err));
+        }
+      }
+      
+      async function crearCitaConApiInbursa() {
+        const APPT_URL = CFG_CITAS.APPT_URL || 'https://citas2.debmedia.com/api/v2/appointments';
+        const API_TOKEN = CFG_CITAS.API_TOKEN || '';
+        if (!citaSelectedSlot || !citaScheduleIdFinal || !citaBranchIdFinal) {
+          throw new Error('Datos de cita incompletos.');
+        }
+        const startAt = citaSelectedSlot.startAt;
+        const endAt = buildEndAtLikeStart(startAt, citaSelectedSlot.defaultDuration || 0);
+        const body = {
+          branch: { id: Number(citaBranchIdFinal) },
+          schedule: { id: Number(citaScheduleIdFinal) },
+          startAt: startAt,
+          endAt: endAt,
+          customer: {
+            firstName: formNombre,
+            lastName: formApellido,
+            cedulaIdentidad: String(formDni || '').trim(),
+            phone: soloDigitosTelefono(formTelefono) || '0000000000',
+            email: (formEmail || '').trim() || undefined
+          },
+          reason: 'Cita Seguros Falabella — ' + etiquetaTramiteParaMensaje(opcionTramiteJourney || 'prestamos')
+        };
+        const res = await fetch(APPT_URL, {
+          method: 'POST',
+          headers: { 'x-api-token': API_TOKEN, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const out = await res.json().catch(function() { return {}; });
+        if (!res.ok) throw new Error(out.message || 'Error al crear la cita (' + res.status + ')');
+      }
+      
+      if (btnEstoyEnSucursal) {
+        btnEstoyEnSucursal.addEventListener('click', function() {
+          pasoInicialOrigen = 'sucursal';
+          citaSelectedSlot = null;
+          citaScheduleIdFinal = null;
+          citaBranchIdFinal = null;
+          if (screenEleccionInicial) screenEleccionInicial.style.display = 'none';
+          if (screenAgendaCita) screenAgendaCita.style.display = 'none';
+          if (screenForm) screenForm.style.display = 'block';
+        });
+      }
+      if (btnGenerarCita) {
+        btnGenerarCita.addEventListener('click', function() {
+          pasoInicialOrigen = 'cita';
+          citaSelectedSlot = null;
+          citaScheduleIdFinal = null;
+          citaBranchIdFinal = null;
+          if (screenEleccionInicial) screenEleccionInicial.style.display = 'none';
+          if (screenAgendaCita) screenAgendaCita.style.display = 'none';
+          if (screenForm) screenForm.style.display = 'block';
+        });
+      }
+      if (btnVolverAgenda) {
+        btnVolverAgenda.addEventListener('click', function() {
+          volverDesdeAgendaATramites();
+        });
+      }
+      if (btnContinuarAgenda) {
+        btnContinuarAgenda.addEventListener('click', async function() {
+          if (!citaSelectedSlot) {
+            citaSetAlert('danger', 'Seleccione un horario disponible.');
+            return;
+          }
+          citaScheduleIdFinal = inputCitaScheduleIdHidden ? inputCitaScheduleIdHidden.value : '';
+          citaBranchIdFinal = selCitaBranch.value;
+          if (!citaScheduleIdFinal || !citaBranchIdFinal) {
+            citaSetAlert('danger', 'Seleccione servicio, sede y fecha.');
+            return;
+          }
+          btnContinuarAgenda.disabled = true;
+          try {
+            await crearCitaConApiInbursa();
+            if (screenAgendaCita) screenAgendaCita.style.display = 'none';
+            const op = opcionTramiteJourney || 'prestamos';
+            await llamarAgenteConOpcionTotem(op);
+          } catch (err) {
+            alert(err.message || 'No se pudo continuar.');
+          } finally {
+            btnContinuarAgenda.disabled = false;
+          }
+        });
+      }
+      
+      // Validar y enviar formulario - Continuar
+      formDatos.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const nombre = (document.getElementById('inputNombre').value || '').trim();
+        const apellido = (document.getElementById('inputApellido').value || '').trim();
+        const dni = (document.getElementById('inputDni').value || '').trim();
+        const email = (document.getElementById('inputEmail').value || '').trim();
+        const telefono = soloDigitosTelefono(document.getElementById('inputTelefono').value || '');
+        
+        // Ocultar errores previos
+        ['errorNombre', 'errorApellido', 'errorDni', 'errorEmail', 'errorTelefono'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) { el.style.display = 'none'; el.textContent = ''; }
+        });
+        
+        let valid = true;
+        if (!nombre) {
+          const err = document.getElementById('errorNombre');
+          if (err) { err.textContent = 'Ingrese su nombre'; err.style.display = 'block'; }
+          valid = false;
+        }
+        if (!apellido) {
+          const err = document.getElementById('errorApellido');
+          if (err) { err.textContent = 'Ingrese su apellido'; err.style.display = 'block'; }
+          valid = false;
+        }
+        if (!dni) {
+          const err = document.getElementById('errorDni');
+          if (err) { err.textContent = 'Ingrese su ID/CURP'; err.style.display = 'block'; }
+          valid = false;
+        }
+        if (!email) {
+          const err = document.getElementById('errorEmail');
+          if (err) { err.textContent = 'Ingrese su email'; err.style.display = 'block'; }
+          valid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          const err = document.getElementById('errorEmail');
+          if (err) { err.textContent = 'Email no válido'; err.style.display = 'block'; }
+          valid = false;
+        }
+        if (!telefono || telefono.length < 10) {
+          const err = document.getElementById('errorTelefono');
+          if (err) {
+            err.textContent = telefono ? 'Teléfono: al menos 10 dígitos' : 'Ingrese su teléfono';
+            err.style.display = 'block';
+          }
+          valid = false;
+        }
+        
+        if (!valid) return;
+        
+        formNombre = nombre;
+        formApellido = apellido;
+        formDni = dni;
+        formEmail = email;
+        formTelefono = telefono;
+        
+        // Mostrar pantalla de opciones (productos Banca). La cita se agenda después de elegir trámite (flujo Generar cita).
+        mostrarPantallaOpciones();
+      });
+      
+      /** Texto enviado al Journey según clave interna (colas/API siguen usando prestamos|tarjetas|inversiones). */
+      function etiquetaTramiteParaMensaje(opcion) {
+        if (opcion === 'prestamos') return 'Seguro de vida';
+        if (opcion === 'tarjetas') return 'Seguro de auto';
+        if (opcion === 'inversiones') return 'Seguro de vivienda';
+        return String(opcion || '');
+      }
+      
+      // Mostrar pantalla de opciones (Seguro de vida, Seguro de auto, Seguro de vivienda)
+      function mostrarPantallaOpciones() {
+        opcionTramiteJourney = null;
+        if (screenForm) screenForm.style.display = 'none';
+        if (screenAgendaCita) screenAgendaCita.style.display = 'none';
+        if (screenEleccionInicial) screenEleccionInicial.style.display = 'none';
+        if (screenExpedientePendiente) screenExpedientePendiente.classList.remove('active');
+        screenOpciones.classList.add('active');
+        
+        opcionesGrid.innerHTML = '';
+        
+        // Cambiar el título y subtítulo
+        const screenOpcionesTitle = screenOpciones.querySelector('h2');
+        const screenOpcionesSubtitle = screenOpciones.querySelector('.subtitle');
+        if (screenOpcionesTitle) {
+          screenOpcionesTitle.textContent = '¿Cómo podemos ayudarlo?';
+        }
+        if (screenOpcionesSubtitle) {
+          screenOpcionesSubtitle.textContent = 'Seleccione el servicio que necesita';
+        }
+        
+        // Seguro de vida
+        const cardPrestamos = document.createElement('div');
+        cardPrestamos.className = 'opcion-card';
+        cardPrestamos.style.cssText = 'cursor: pointer; border-color: #439524; background: linear-gradient(135deg, #f5faf7 0%, #d4eedd 100%);';
+        cardPrestamos.innerHTML = `
+          <div class="opcion-icon" style="color: #439524;">
+            <i class="bi bi-umbrella-fill"></i>
+          </div>
+          <div class="opcion-title">Seguro de vida</div>
+        `;
+        cardPrestamos.addEventListener('click', async () => {
+          if (pasoInicialOrigen === 'cita') {
+            opcionTramiteJourney = 'prestamos';
+            mostrarPantallaAgenda();
+            return;
+          }
+          await llamarAgenteConOpcionTotem('prestamos');
+        });
+        opcionesGrid.appendChild(cardPrestamos);
+        
+        // Seguro de auto
+        const cardTarjetas = document.createElement('div');
+        cardTarjetas.className = 'opcion-card';
+        cardTarjetas.style.cssText = 'cursor: pointer; border-color: #439524; background: linear-gradient(135deg, #ffffff 0%, #e0f5ea 100%);';
+        cardTarjetas.innerHTML = `
+          <div class="opcion-icon" style="color: #439524;">
+            <i class="bi bi-car-front"></i>
+          </div>
+          <div class="opcion-title">Seguro de auto</div>
+        `;
+        cardTarjetas.addEventListener('click', async () => {
+          if (pasoInicialOrigen === 'cita') {
+            opcionTramiteJourney = 'tarjetas';
+            mostrarPantallaAgenda();
+            return;
+          }
+          await llamarAgenteConOpcionTotem('tarjetas');
+        });
+        opcionesGrid.appendChild(cardTarjetas);
+        
+        // Seguro de vivienda
+        const cardInversiones = document.createElement('div');
+        cardInversiones.className = 'opcion-card';
+        cardInversiones.style.cssText = 'cursor: pointer; border-color: #439524; background: linear-gradient(135deg, #ffffff 0%, #e0f5ea 100%);';
+        cardInversiones.innerHTML = `
+          <div class="opcion-icon" style="color: #439524;">
+            <i class="bi bi-house-door"></i>
+          </div>
+          <div class="opcion-title opcion-title--multiline">Seguro de vivienda</div>
+        `;
+        cardInversiones.addEventListener('click', async () => {
+          if (pasoInicialOrigen === 'cita') {
+            opcionTramiteJourney = 'inversiones';
+            mostrarPantallaAgenda();
+            return;
+          }
+          await llamarAgenteConOpcionTotem('inversiones');
+        });
+        opcionesGrid.appendChild(cardInversiones);
+      }
+      
+      // Mostrar opciones presenciales en el tótem
+      function mostrarOpcionesPresencialTotem() {
+        const opcionesPresencialContainer = document.getElementById('opcionesPresencialContainerTotem');
+        if (!opcionesPresencialContainer) return;
+        
+        // Si ya está visible, ocultarlo
+        if (opcionesPresencialContainer.style.display === 'block') {
+          opcionesPresencialContainer.style.display = 'none';
+          return;
+        }
+        
+        // Mostrar opciones
+        opcionesPresencialContainer.innerHTML = `
+          <div style="width: 100%; max-width: 500px; margin: 0 auto;">
+            <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--numia-text); margin-bottom: 1.5rem; text-align: center;">¿Cómo podemos ayudarlo?</h3>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+              <div class="opcion-card" style="cursor: pointer;" data-opcion="prestamos">
+                <div class="opcion-icon" style="color: #439524;">
+                  <i class="bi bi-umbrella-fill"></i>
+                </div>
+                <div class="opcion-title">Seguro de vida</div>
+              </div>
+              <div class="opcion-card" style="cursor: pointer;" data-opcion="tarjetas">
+                <div class="opcion-icon" style="color: #439524;">
+                  <i class="bi bi-car-front"></i>
+                </div>
+                <div class="opcion-title">Seguro de auto</div>
+              </div>
+              <div class="opcion-card" style="cursor: pointer;" data-opcion="inversiones">
+                <div class="opcion-icon" style="color: #439524;">
+                  <i class="bi bi-house-door"></i>
+                </div>
+                <div class="opcion-title opcion-title--multiline">Seguro de vivienda</div>
+              </div>
+            </div>
+          </div>
+        `;
+        opcionesPresencialContainer.style.display = 'block';
+        
+        // Agregar event listeners a las tarjetas
+        const cardsOpcion = opcionesPresencialContainer.querySelectorAll('[data-opcion]');
+        cardsOpcion.forEach(card => {
+          card.addEventListener('click', async () => {
+            const opcion = card.getAttribute('data-opcion');
+            await llamarAgenteConOpcionTotem(opcion);
+          });
+        });
+      }
+      
+      async function llamarAgenteConOpcionTotem(opcion) {
+        try {
+          opcionTramiteJourney = opcion;
+          // Ocultar pantalla de opciones y mostrar loading
+          screenOpciones.classList.remove('active');
+          
+          // Mostrar log
+          if (logContainer) {
+            logContainer.classList.add('visible');
+          }
+          
+          atencionSection.style.display = 'block';
+          atencionSection.classList.add('active');
+          stepsContainer.innerHTML = '<div style="color: #ffffff;"><i class="bi bi-hourglass-split me-2"></i>Conectando con el asistente...</div>';
+          
+          // Llamar al agente con los datos del formulario y la opción seleccionada
+          const mensaje = `Necesito atención sobre ${etiquetaTramiteParaMensaje(opcion)}. Nombre: ${formNombre} ${formApellido}, ID/CURP: ${formDni}, Email: ${formEmail}, Tel: ${soloDigitosTelefono(formTelefono)}`;
+          
+          const response = await fetch(JOURNEY_API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': JOURNEY_API_KEY,
+              'Origin': 'journeybuilder.numia.co'
+            },
+            body: JSON.stringify({
+              input_value: mensaje,
+              input_type: 'chat'
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Error en servidor (${response.status})`);
+          }
+          
+          const data = await response.json();
+          console.log('Respuesta completa de la API:', JSON.stringify(data, null, 2));
+          
+          // Procesar respuesta (similar al código existente)
+          let contents = [];
+          let messageText = null;
+          
+          if (data.outputs && data.outputs.length > 0) {
+            const firstOutput = data.outputs[0];
+            
+            if (firstOutput.outputs && firstOutput.outputs.length > 0) {
+              const innerOutput = firstOutput.outputs[0];
+              
+              if (innerOutput.results?.message?.content_blocks) {
+                innerOutput.results.message.content_blocks.forEach((block) => {
+                  if (block.contents && Array.isArray(block.contents)) {
+                    block.contents.forEach((content) => {
+                      if (content.type === 'tool_use' && content.name) {
+                        contents.push({
+                          type: 'tool_use',
+                          name: content.name,
+                          tool_name: content.name,
+                          tool_input: content.tool_input || content.input,
+                          output: content.output,
+                          duration: content.duration
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+              
+              if (innerOutput.artifacts?.message) {
+                messageText = typeof innerOutput.artifacts.message === 'string' 
+                  ? innerOutput.artifacts.message 
+                  : innerOutput.artifacts.message.message || JSON.stringify(innerOutput.artifacts.message);
+              } else if (innerOutput.outputs?.message?.message) {
+                messageText = innerOutput.outputs.message.message;
+              } else if (innerOutput.results?.message?.text) {
+                messageText = innerOutput.results.message.text;
+              }
+            }
+          }
+          
+          // Mostrar pasos (herramientas del Journey)
+          if (contents.length > 0) {
+            stepsContainer.innerHTML = '';
+            contents.forEach((content, index) => {
+              setTimeout(() => {
+                agregarPaso(content, index);
+              }, index * 800);
+            });
+          }
+          
+          // ID/CURP 240696: siempre ofrecer videollamada y presencial (el encolar usa mismo JSON enriquecido que el resto)
+          if (esDniDemoDobleCanal240696()) {
+            if (messageText) {
+              mostrarResumen(messageText);
+            }
+            recomendacionVideollamada = true;
+            const delayCitaDemo = contents.length > 0 ? contents.length * 800 + 500 : 400;
+            setTimeout(() => {
+              mostrarOpcionesAtencion();
+            }, delayCitaDemo);
+            return;
+          }
+          
+          if (contents.length > 0) {
+            if (messageText) {
+              setTimeout(() => {
+                const interceptExpediente = debeInterceptarExpedienteIncompleto(messageText);
+                const textoConsola = interceptExpediente ? textoResumenConsolaExpedienteDesactualizado() : messageText;
+                mostrarResumen(textoConsola);
+                if (interceptExpediente) {
+                  setTimeout(() => mostrarPantallaExpedienteDesactualizado(), 1000);
+                  return;
+                }
+                // Extraer Scoring y detectar si recomienda videollamada
+                const scoring = extraerScoring(messageText);
+                const textoLower = messageText.toLowerCase();
+                
+                // Primero verificar si explícitamente dice NO o Presencial
+                const diceNoOPresencial = 
+                  textoLower.includes('sugerir videollamada: no') ||
+                  textoLower.includes('sugerir videollamada:no') ||
+                  textoLower.includes('**sugerir videollamada:** no') ||
+                  textoLower.includes('**sugerir videollamada:**no') ||
+                  (textoLower.includes('tipo de atención sugerida:') && textoLower.includes('presencial')) ||
+                  (textoLower.includes('tipo de atención sugerida') && textoLower.includes('presencial'));
+                
+                // Solo detectar videollamada si NO dice explícitamente NO o Presencial
+                let tieneVideollamadaTexto = false;
+                if (!diceNoOPresencial) {
+                  // Detectar múltiples variaciones del texto de sugerencia de videollamada
+                  tieneVideollamadaTexto = 
+                    // Variaciones con guión y SÃ
+                    textoLower.includes('- sugerir videollamada: si') ||
+                    textoLower.includes('- sugerir videollamada: sí') ||
+                    textoLower.includes('sugerir videollamada: si') ||
+                    textoLower.includes('sugerir videollamada: sí') ||
+                    // Variaciones con asteriscos (markdown) y SÃ
+                    textoLower.includes('**sugerir videollamada:** si') ||
+                    textoLower.includes('**sugerir videollamada:** sí') ||
+                    textoLower.includes('**sugerir videollamada:**si') ||
+                    textoLower.includes('**sugerir videollamada:**sí') ||
+                    // Detectar "Tipo de atención sugerida: Videollamada" (debe estar juntos)
+                    textoLower.includes('tipo de atención sugerida: videollamada') ||
+                    textoLower.includes('tipo de atención sugerida:videollamada');
+                }
+                
+                // Mostrar videollamada si el texto lo sugiere O si el Scoring > 640 (estricto, no >=)
+                const tieneVideollamada = tieneVideollamadaTexto || (scoring !== null && scoring > 640);
+                recomendacionVideollamada = tieneVideollamada;
+                console.log('Scoring extraído:', scoring, 'Dice NO/Presencial:', diceNoOPresencial, 'Videollamada por texto:', tieneVideollamadaTexto, 'Videollamada recomendada:', tieneVideollamada);
+                console.log('Texto completo para debugging:', messageText.substring(0, 500));
+                // Mostrar opciones de videollamada/presencial después del análisis o confirmación directa
+                setTimeout(() => {
+                  if (esSucursalDniDobleAtencionEspecial()) {
+                    recomendacionVideollamada = true;
+                    mostrarOpcionesAtencion();
+                    return;
+                  }
+                  if (tieneVideollamada) {
+                    mostrarOpcionesAtencion();
+                  } else {
+                    solicitarAtencionPresencialDirecta();
+                  }
+                }, 1000);
+              }, contents.length * 800 + 500);
+            }
+          } else {
+            if (messageText) {
+              const interceptExpediente = debeInterceptarExpedienteIncompleto(messageText);
+              const textoConsola = interceptExpediente ? textoResumenConsolaExpedienteDesactualizado() : messageText;
+              mostrarResumen(textoConsola);
+              if (interceptExpediente) {
+                setTimeout(() => mostrarPantallaExpedienteDesactualizado(), 1000);
+              } else {
+                // Extraer Scoring y detectar si recomienda videollamada
+                const scoring = extraerScoring(messageText);
+                const textoLower = messageText.toLowerCase();
+                // Detectar múltiples variaciones del texto de sugerencia de videollamada
+                const tieneVideollamadaTexto = 
+                  // Variaciones con guión
+                  textoLower.includes('- sugerir videollamada: si') ||
+                  textoLower.includes('- sugerir videollamada: sí') ||
+                  textoLower.includes('sugerir videollamada: si') ||
+                  textoLower.includes('sugerir videollamada: sí') ||
+                  // Variaciones con asteriscos (markdown)
+                  textoLower.includes('**sugerir videollamada:** si') ||
+                  textoLower.includes('**sugerir videollamada:** sí') ||
+                  textoLower.includes('**sugerir videollamada:**si') ||
+                  textoLower.includes('**sugerir videollamada:**sí') ||
+                  // Detectar "Tipo de atención sugerida: Videollamada"
+                  (textoLower.includes('tipo de atención sugerida') && textoLower.includes('videollamada')) ||
+                  (textoLower.includes('tipo de atención sugerida:') && textoLower.includes('videollamada'));
+                // Mostrar videollamada si el texto lo sugiere O si el Scoring > 640
+                const tieneVideollamada = tieneVideollamadaTexto || (scoring !== null && scoring > 640);
+                recomendacionVideollamada = tieneVideollamada;
+                console.log('Scoring extraído:', scoring, 'Videollamada recomendada:', tieneVideollamada);
+                // Mostrar opciones de videollamada/presencial después del análisis o confirmación directa
+                setTimeout(() => {
+                  if (esSucursalDniDobleAtencionEspecial()) {
+                    recomendacionVideollamada = true;
+                    mostrarOpcionesAtencion();
+                    return;
+                  }
+                  if (tieneVideollamada) {
+                    mostrarOpcionesAtencion();
+                  } else {
+                    solicitarAtencionPresencialDirecta();
+                  }
+                }, 1000);
+              }
+            }
+          }
+          
+        } catch (err) {
+          console.error('Error al llamar al agente:', err);
+          stepsContainer.innerHTML = `<div style="color: #ff8888;"><i class="bi bi-exclamation-triangle me-2"></i>Error: ${err.message}</div>`;
+        }
+      }
+      
+      // Mostrar opciones de atención (videollamada/presencial) después del análisis
+      function mostrarOpcionesAtencion() {
+        if (screenExpedientePendiente) screenExpedientePendiente.classList.remove('active');
+        screenOpciones.classList.add('active');
+        
+        // Cambiar el título y subtítulo
+        const screenOpcionesTitle = screenOpciones.querySelector('h2');
+        const screenOpcionesSubtitle = screenOpciones.querySelector('.subtitle');
+        if (screenOpcionesTitle) {
+          screenOpcionesTitle.textContent = 'Seleccione su preferencia';
+        }
+        if (screenOpcionesSubtitle) {
+          screenOpcionesSubtitle.textContent = 'Elija cómo desea ser atendido';
+        }
+        
+        opcionesGrid.innerHTML = '';
+        
+        // Opción Videollamada (solo se muestra si está recomendada - esta función solo se llama cuando lo está)
+        if (recomendacionVideollamada) {
+          const cardVideo = document.createElement('div');
+          cardVideo.className = 'opcion-card videollamada';
+          cardVideo.innerHTML = `
+            <div class="opcion-icon">
+              <i class="bi bi-camera-video"></i>
+            </div>
+            <div class="opcion-title">Videollamada</div>
+            <div class="opcion-badge">Menos espera</div>
+            <div class="opcion-desc">Atención inmediata desde donde estés</div>
+          `;
+          cardVideo.addEventListener('click', () => solicitarAtencion('videollamada'));
+          opcionesGrid.appendChild(cardVideo);
+        }
+        
+        // Opción Presencial (siempre disponible, menos recomendada si hay videollamada)
+        const cardPresencial = document.createElement('div');
+        cardPresencial.className = 'opcion-card presencial';
+        if (recomendacionVideollamada) {
+          cardPresencial.innerHTML = `
+            <div class="opcion-icon">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="opcion-title">Continuar presencial</div>
+            <div class="opcion-badge less-recommended">Opción menos recomendada</div>
+            <div class="opcion-desc">Atención en sucursal</div>
+          `;
+        } else {
+          cardPresencial.innerHTML = `
+            <div class="opcion-icon">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="opcion-title">Continuar presencial</div>
+            <div class="opcion-desc">Atención en sucursal</div>
+          `;
+        }
+        cardPresencial.addEventListener('click', () => solicitarAtencion('presencial'));
+        opcionesGrid.appendChild(cardPresencial);
+      }
+      
+      // Solicitar atención presencial directamente (cuando no hay recomendación de videollamada)
+      async function solicitarAtencionPresencialDirecta() {
+        await solicitarAtencion('presencial');
+      }
+      
+      // Solicitar atención (videollamada: cola 17452 solo para Seguro de vivienda / inversiones; resto 16223; presencial sin cambios)
+      async function solicitarAtencion(tipo) {
+        try {
+          const QUEUE_VIDEO_DEFAULT = '16223';
+          const QUEUE_VIDEO_CREDITO_HIPOTECARIO = '17452';
+          const QUEUE_PRESENCIAL = '16221';
+          let queueId;
+          if (esSucursalDniDobleAtencionEspecial()) {
+            queueId = tipo === 'presencial' ? QUEUE_SUCURSAL_DNI_PRES : QUEUE_SUCURSAL_DNI_VIDEO;
+          } else if (tipo === 'presencial') {
+            queueId = QUEUE_PRESENCIAL;
+          } else if (opcionTramiteJourney === 'inversiones') {
+            queueId = QUEUE_VIDEO_CREDITO_HIPOTECARIO;
+          } else {
+            queueId = QUEUE_VIDEO_DEFAULT;
+          }
+          const apiUrl = `https://filavirtual2.debmedia.com/api/v1/queue/${queueId}/branch/10724/enqueue`;
+          const apiToken = 'RkupuHk98V8bJoYHVKBy4hZTyOMcgqs6QZFItUsg';
+          
+          const datos = construirPayloadEnqueueTurno();
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-token': apiToken
+            },
+            body: JSON.stringify(datos)
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Error en servidor (${response.status})`);
+          }
+          
+          const data = await response.json();
+          console.log('Respuesta de la API:', data);
+          
+          // Mostrar pantalla de confirmación
+          mostrarPantallaConfirmacion(data, tipo);
+          
+        } catch (err) {
+          console.error('Error al solicitar atención:', err);
+          alert(`Error: ${err.message}`);
+        }
+      }
+      
+      // Mostrar pantalla de confirmación
+      function mostrarPantallaConfirmacion(data, tipo) {
+        screenOpciones.classList.remove('active');
+        if (screenExpedientePendiente) screenExpedientePendiente.classList.remove('active');
+        screenConfirmacion.classList.add('active');
+        
+        // Ocultar elementos que no aplican si no hay data
+        document.getElementById('tiempoEspera').style.display = 'none';
+        document.getElementById('videoLinkContainer').style.display = 'none';
+        
+        // Mostrar tiempo de espera solo si hay data
+        if (data && data.averageWaitingTime !== undefined) {
+          const minutos = Math.floor(data.averageWaitingTime / 60);
+          const segundos = data.averageWaitingTime % 60;
+          document.getElementById('tiempoEspera').style.display = 'block';
+          document.getElementById('tiempoEsperaValor').textContent = `${minutos} min ${segundos} seg`;
+        }
+        
+        // Mostrar enlace de videollamada si aplica
+        if (tipo === 'videollamada' && data && data.videoCallUrl) {
+          const videoUrl = data.videoCallUrl + (data.videoCallUrl.includes('?') ? '&' : '?') + 'videocallUser=mobile';
+          document.getElementById('videoLinkContainer').style.display = 'block';
+          document.getElementById('btnVideoLink').href = videoUrl;
+        }
+      }
+      
+      // Mostrar pantalla de confirmación presencial (cuando no hay videollamada recomendada)
+      function mostrarPantallaConfirmacionPresencial() {
+        screenOpciones.classList.remove('active');
+        if (screenExpedientePendiente) screenExpedientePendiente.classList.remove('active');
+        screenConfirmacion.classList.add('active');
+        
+        // Ocultar elementos que no aplican
+        document.getElementById('tiempoEspera').style.display = 'none';
+        document.getElementById('videoLinkContainer').style.display = 'none';
+        
+        // Actualizar el mensaje de confirmación
+        const confirmacionTitle = screenConfirmacion.querySelector('h2');
+        const confirmacionMessage = screenConfirmacion.querySelector('.message');
+        
+        if (confirmacionTitle) {
+          confirmacionTitle.textContent = esCitaDniTurnoDirecto() ? 'Cita generada' : 'Tu turno fue asignado';
+        }
+        
+        if (confirmacionMessage) {
+          confirmacionMessage.innerHTML = `
+            Lo llamaremos. <strong>${formNombre} ${formApellido}</strong>, ID/CURP: <strong>${formDni}</strong>
+          `;
+        }
+      }
+      
+      // Función para extraer el Scoring del mensaje
+      function extraerScoring(texto) {
+        if (!texto) return null;
+        
+        // Buscar patrones como "Scoring: 640", "Scoring:640", "scoring: 640", etc.
+        const patrones = [
+          /Scoring:\s*(\d+)/i,
+          /Scoring\s*:\s*(\d+)/i,
+          /score\s*:\s*(\d+)/i
+        ];
+        
+        for (const patron of patrones) {
+          const match = texto.match(patron);
+          if (match && match[1]) {
+            const scoring = parseInt(match[1], 10);
+            if (!isNaN(scoring)) {
+              return scoring;
+            }
+          }
+        }
+        
+        return null;
+      }
+      
+      // Funciones auxiliares (copiadas de app-cliente.html)
+      function agregarPaso(content, index) {
+        try {
+          const stepItem = document.createElement('div');
+          stepItem.className = 'step-item processing';
+          
+          const toolName = content.name || content.tool_name || 'Herramienta desconocida';
+          const friendlyName = toolName
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase())
+            .trim()
+            .replace(/\b\w/g, l => l.toUpperCase());
+          
+          stepItem.innerHTML = `
+            <div class="step-title">${escapeHtml(friendlyName)}</div>
+            <div class="step-output-content">
+              <em style="color: #ffffff;">Herramienta ejecutada correctamente</em>
+            </div>
+          `;
+          
+          stepsContainer.appendChild(stepItem);
+          
+          setTimeout(() => {
+            stepItem.classList.remove('processing');
+            stepItem.classList.add('completed');
+          }, 600);
+          
+        } catch (err) {
+          console.error('Error al agregar paso:', err);
+        }
+      }
+      
+      function mostrarResumen(message) {
+        try {
+          const messageText = typeof message === 'string' ? message : (message.message || JSON.stringify(message, null, 2));
+          summaryContent.textContent = messageText;
+          summarySection.style.display = 'block';
+        } catch (err) {
+          console.error('Error al mostrar resumen:', err);
+        }
+      }
+      
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
