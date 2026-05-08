@@ -1280,19 +1280,96 @@
       }
       
       /**
-       * POST enqueue Filavirtual: mismo esquema que referencia Postman (extraFields + customerExtraFields).
-       * Datos raíz y tabla desde el formulario; resto de claves como en el ejemplo.
+       * Textos simulados y genéricos para demos comerciales Numia: CRM, automatización, recorte de tiempos.
+       * Mismas claves de extraFields que exige Filavirtual; sin viñetas ni saltos (visor sensible).
        */
-      function construirPayloadEnqueueTurno() {
-        var ph = soloDigitosTelefono(formTelefono);
-        if (!ph) ph = '0000000000';
-        var op = opcionTramiteJourney || 'prestamos';
-        var nom = textoPlanoExtra(formNombre, 80);
-        var ape = textoPlanoExtra(formApellido, 80);
-        var curp = String(formDni || '').trim();
-        var mail = textoPlanoExtra(formEmail, 120);
-        var tablaCliente =
-          '<table><tr><td>Nombre: ' +
+      function demoComercialPorTramite(op) {
+        var baseCrm =
+          'Origen: tótem digital. Lead sincronizado a CRM (demo). ID de interacción: INT-' +
+          String(Math.floor(100000 + Math.random() * 900000)) +
+          '. Siguiente paso sugerido por motor de reglas: contacto humano con contexto ya cargado.';
+        if (op === 'prestamos') {
+          return {
+            consultaBuro: textoPlanoExtra(
+              'Score orientativo de perfil 742 sobre 900 (simulado). Sin observaciones negativas en fuentes demo. Propensión a contratar protección familiar: alta. Tiempo estimado ahorrado al agente vs captura manual: 4 a 6 minutos por sesión.',
+              420
+            ),
+            ofertas: textoPlanoExtra(
+              textoOfertaTramiteSeguros(op) +
+                '. Paquete sugerido: vida temporal más complemento invalidez (demo). Precalificación automática y envío de cotización al buzón del asesor. Mensaje para sala: el cliente llega con datos validados y propuesta base lista en CRM.',
+              420
+            ),
+            filasExtraTabla: [
+              ['Perfil y automatización', textoPlanoExtra(baseCrm + ' Validación de identidad en canal digital previa a cola.', 220)],
+              ['Valor comercial demo', textoPlanoExtra('Suma sugerida de referencia 2500000 MXN (no vinculante). Cross-sell detectado: beneficiarios designados pendientes de confirmar en llamada.', 200)],
+              ['Impacto operativo', textoPlanoExtra('Checklist PEP y FATCA precargado en expediente digital. Menos repregunta en piso: enfoque en cierre y firma.', 180)]
+            ],
+            analisisComprobante: textoPlanoExtra(
+              'Comprobante no requerido en este paso (demo). Si el flujo incluye domicilio, el OCR simulado marcaría coincidencia media con padrón genérico. Excepciones enrutadas a bandeja de calidad.',
+              320
+            ),
+            docLabel: 'Ver expediente digital demo (CRM)'
+          };
+        }
+        if (op === 'tarjetas') {
+          return {
+            consultaBuro: textoPlanoExtra(
+              'Historial crediticio demo estable. Clasificación de riesgo vehicular: estándar preferente. Antigüedad de licencia simulada 8 años. Indicador telemática: disponible para conectar con app del asegurado (demo).',
+              420
+            ),
+            ofertas: textoPlanoExtra(
+              textoOfertaTramiteSeguros(op) +
+                '. Cobertura recomendada por motor: amplia con RC elevada y asistencias extendidas. Cotización prearmada lista para ajuste fino por el ejecutivo. Integración posventa con talleres red convenio (mensaje demo).',
+              420
+            ),
+            filasExtraTabla: [
+              ['Vehículo referencia demo', textoPlanoExtra('Uso particular. Modelo tipo sedán compacto año reciente. Zona circulación: metropolitana. Sin siniestro total declarado en historial simulado.', 200)],
+              ['Perfil y automatización', textoPlanoExtra(baseCrm + ' Datos de póliza anterior enriquecidos desde core simulado si existieran.', 220)],
+              ['Impacto operativo', textoPlanoExtra('El agente evita reteclear nombre, contacto y vigencia: ya vienen del tótem y del CRM. Enfoque en inspección y activación de pago.', 200)]
+            ],
+            analisisComprobante: textoPlanoExtra(
+              'Tarjeta de circulación y factura: campos clave extraídos por automatización (demo). Coincidencia titular 98 por ciento simulado. Discrepancias menores irían a revisión rápida.',
+              300
+            ),
+            docLabel: 'Ver identificación y tarjeta demo'
+          };
+        }
+        if (op === 'inversiones') {
+          return {
+            consultaBuro: textoPlanoExtra(
+              'Capacidad de pago orientativa favorable (simulado). Relación vivienda ingreso dentro de parámetros demo. Alerta suave: revisar gravamen si hay crédito activo en otro institucional (flag genérico).',
+              420
+            ),
+            ofertas: textoPlanoExtra(
+              textoOfertaTramiteSeguros(op) +
+                '. Paquete sugerido: multirriesgo hogar con terremoto y contenidos. Inspección remota agendable desde CRM. Renovación y endosos conectados a póliza madre (discurso demo para integración).',
+              420
+            ),
+            filasExtraTabla: [
+              ['Inmueble referencia demo', textoPlanoExtra('Vivienda habitacional. Superficie aproximada 120 a 150 m2. Antigüedad media. Valor reconstrucción orientativo 3500000 MXN (no vinculante).', 200)],
+              ['Perfil y automatización', textoPlanoExtra(baseCrm + ' Geolocalización de riesgo catastral simulada: zona media.', 220)],
+              ['Impacto operativo', textoPlanoExtra('Menos ida y vuelta por datos del contratante: ya consolidados en cola. El ejecutivo cierra coberturas y cláusulas específicas.', 200)]
+            ],
+            analisisComprobante: textoPlanoExtra(
+              'Comprobante de domicilio: lectura automática demo con coincidencia de entidad federativa. Si hubiera segunda residencia, el sistema marcaría dualidad para validación humana.',
+              300
+            ),
+            docLabel: 'Ver escritura o comprobante demo'
+          };
+        }
+        return {
+          consultaBuro: textoPlanoExtra('Perfil general demo sin observaciones. Listo para asignación a ejecutivo con contexto en CRM.', 280),
+          ofertas: textoPlanoExtra(textoOfertaTramiteSeguros(op) + '. Continuidad del journey desde canal digital (demo Numia).', 280),
+          filasExtraTabla: [['Perfil y automatización', textoPlanoExtra(baseCrm, 240)]],
+          analisisComprobante: textoPlanoExtra('Sin comprobante en este paso. Flujo demo.', 120),
+          docLabel: 'Ver documentación demo'
+        };
+      }
+      
+      function armarTablaDatosCliente(nom, ape, curp, mail, ph, op) {
+        var demo = demoComercialPorTramite(op);
+        var filas =
+          '<tr><td>Nombre: ' +
           escapeHtml(nom) +
           '</td></tr><tr><td>Apellidos: ' +
           escapeHtml(ape) +
@@ -1304,7 +1381,32 @@
           escapeHtml(ph) +
           '</td></tr><tr><td>Trámite seleccionado: ' +
           escapeHtml(textoOfertaTramiteSeguros(op).replace(/^Ofrecer /, '')) +
-          '</td></tr></table>';
+          '</td></tr>';
+        var i;
+        for (i = 0; i < demo.filasExtraTabla.length; i++) {
+          filas +=
+            '<tr><td>' +
+            escapeHtml(demo.filasExtraTabla[i][0]) +
+            ': ' +
+            escapeHtml(demo.filasExtraTabla[i][1]) +
+            '</td></tr>';
+        }
+        return '<table>' + filas + '</table>';
+      }
+      
+      /**
+       * POST enqueue Filavirtual: mismo esquema que referencia Postman (extraFields + customerExtraFields).
+       */
+      function construirPayloadEnqueueTurno() {
+        var ph = soloDigitosTelefono(formTelefono);
+        if (!ph) ph = '0000000000';
+        var op = opcionTramiteJourney || 'prestamos';
+        var nom = textoPlanoExtra(formNombre, 80);
+        var ape = textoPlanoExtra(formApellido, 80);
+        var curp = String(formDni || '').trim();
+        var mail = textoPlanoExtra(formEmail, 120);
+        var demo = demoComercialPorTramite(op);
+        var tablaCliente = armarTablaDatosCliente(nom, ape, curp, mail, ph, op);
         return {
           firstName: nom,
           lastName: ape,
@@ -1314,12 +1416,14 @@
           extraFields: [
             {
               showable: [{ in: 'workstation', format: 'both' }],
-              'Consulta Buró de crédito': 'N/A (tótem Agencia Seguros Falabella — demo)',
-              'Ofertas personalizadas': textoOfertaTramiteSeguros(op),
+              'Consulta Buró de crédito': demo.consultaBuro,
+              'Ofertas personalizadas': demo.ofertas,
               'Datos de cliente': tablaCliente,
-              'Análisis de comprobante de domicilio': 'N/A',
+              'Análisis de comprobante de domicilio': demo.analisisComprobante,
               Documentación:
-                "<a href='https://tinyurl.com/abc123' target='_blank' rel='noopener noreferrer'>Ver ID</a>"
+                "<a href='https://tinyurl.com/abc123' target='_blank' rel='noopener noreferrer'>" +
+                escapeHtml(demo.docLabel) +
+                '</a>'
             }
           ],
           customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
