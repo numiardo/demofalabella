@@ -1279,96 +1279,119 @@
         return 'Ofrecer producto Seguros Falabella';
       }
       
-      /**
-       * Textos simulados y genéricos para demos comerciales Numia: CRM, automatización, recorte de tiempos.
-       * Mismas claves de extraFields que exige Filavirtual; sin viñetas ni saltos (visor sensible).
-       */
-      function demoComercialPorTramite(op) {
-        var baseCrm =
-          'Origen: tótem digital. Lead sincronizado a CRM (demo). ID de interacción: INT-' +
+      /** Cross-sell breve: producto distinto al trámite actual (mensaje comercial genérico). */
+      function ofertaCrossSellBreve(op) {
+        if (op === 'prestamos') {
+          return textoPlanoExtra(
+            'Sugerencia comercial: gastos médicos mayores individuales o familiares. Encolado por otro canal.',
+            200
+          );
+        }
+        if (op === 'tarjetas') {
+          return textoPlanoExtra(
+            'Sugerencia comercial: seguro de hogar o patrimonio con cobertura de contenidos.',
+            200
+          );
+        }
+        if (op === 'inversiones') {
+          return textoPlanoExtra(
+            'Sugerencia comercial: seguro de auto amplio con asistencias y responsabilidad civil.',
+            200
+          );
+        }
+        return textoPlanoExtra('Sugerencia: producto complementario de protección patrimonial.', 160);
+      }
+      
+      var DOC_URL_IDENTIFICACION =
+        'https://drive.google.com/file/d/17LIKWYYIVOBkJifhC9Re-qF_h7QzbKZ-/view?usp=drive_link';
+      
+      function lineaCrmBase() {
+        return (
+          'Origen: tótem digital. Lead sincronizado a CRM. ID de interacción: INT-' +
           String(Math.floor(100000 + Math.random() * 900000)) +
-          '. Siguiente paso sugerido por motor de reglas: contacto humano con contexto ya cargado.';
+          '. Siguiente paso sugerido por motor de reglas: contacto humano con contexto cargado.'
+        );
+      }
+      
+      /**
+       * Contenido repartido en varios campos (columna morada / valor) para no saturar una sola fila.
+       * Textos genéricos para presentaciones comerciales (sin marcas de prueba en el contenido visible).
+       */
+      function bloquesComercialesPorTramite(op) {
+        var crm = lineaCrmBase();
         if (op === 'prestamos') {
           return {
-            consultaBuro: textoPlanoExtra(
-              'Score orientativo de perfil 742 sobre 900 (simulado). Sin observaciones negativas en fuentes demo. Propensión a contratar protección familiar: alta. Tiempo estimado ahorrado al agente vs captura manual: 4 a 6 minutos por sesión.',
-              420
+            contextoTramite: textoPlanoExtra(
+              'Perfil orientativo 742 sobre 900. Sin observaciones negativas en fuentes consultadas. Propensión a protección familiar: alta. Suma sugerida de referencia 2500000 MXN, no vinculante.',
+              380
             ),
-            ofertas: textoPlanoExtra(
-              textoOfertaTramiteSeguros(op) +
-                '. Paquete sugerido: vida temporal más complemento invalidez (demo). Precalificación automática y envío de cotización al buzón del asesor. Mensaje para sala: el cliente llega con datos validados y propuesta base lista en CRM.',
-              420
-            ),
-            filasExtraTabla: [
-              ['Perfil y automatización', textoPlanoExtra(baseCrm + ' Validación de identidad en canal digital previa a cola.', 220)],
-              ['Valor comercial demo', textoPlanoExtra('Suma sugerida de referencia 2500000 MXN (no vinculante). Cross-sell detectado: beneficiarios designados pendientes de confirmar en llamada.', 200)],
-              ['Impacto operativo', textoPlanoExtra('Checklist PEP y FATCA precargado en expediente digital. Menos repregunta en piso: enfoque en cierre y firma.', 180)]
-            ],
-            analisisComprobante: textoPlanoExtra(
-              'Comprobante no requerido en este paso (demo). Si el flujo incluye domicilio, el OCR simulado marcaría coincidencia media con padrón genérico. Excepciones enrutadas a bandeja de calidad.',
+            integracionCrm: textoPlanoExtra(crm + ' Validación de identidad en canal digital previa a cola.', 320),
+            eficienciaSala: textoPlanoExtra(
+              'Ahorro referencial al agente 4 a 6 minutos vs captura manual. Checklist PEP y FATCA precargado en expediente digital. Menos repregunta en sala; foco en cierre y firma.',
               320
             ),
-            docLabel: 'Ver expediente digital demo (CRM)'
+            validacionDocumental: textoPlanoExtra(
+              'Comprobante no obligatorio en este paso. Si aplica domicilio, extracción OCR con coincidencia en padrón. Excepciones a bandeja de calidad.',
+              320
+            ),
+            docLabel: 'Ver identificación oficial'
           };
         }
         if (op === 'tarjetas') {
           return {
-            consultaBuro: textoPlanoExtra(
-              'Historial crediticio demo estable. Clasificación de riesgo vehicular: estándar preferente. Antigüedad de licencia simulada 8 años. Indicador telemática: disponible para conectar con app del asegurado (demo).',
-              420
+            contextoTramite: textoPlanoExtra(
+              'Uso particular. Vehículo tipo sedán compacto reciente. Zona de circulación metropolitana. Riesgo vehicular estándar preferente. Licencia con antigüedad referencial 8 años. Sin siniestro total declarado en antecedentes.',
+              380
             ),
-            ofertas: textoPlanoExtra(
-              textoOfertaTramiteSeguros(op) +
-                '. Cobertura recomendada por motor: amplia con RC elevada y asistencias extendidas. Cotización prearmada lista para ajuste fino por el ejecutivo. Integración posventa con talleres red convenio (mensaje demo).',
-              420
+            integracionCrm: textoPlanoExtra(
+              crm + ' Enriquecimiento desde core institucional si existiera póliza previa.',
+              320
             ),
-            filasExtraTabla: [
-              ['Vehículo referencia demo', textoPlanoExtra('Uso particular. Modelo tipo sedán compacto año reciente. Zona circulación: metropolitana. Sin siniestro total declarado en historial simulado.', 200)],
-              ['Perfil y automatización', textoPlanoExtra(baseCrm + ' Datos de póliza anterior enriquecidos desde core simulado si existieran.', 220)],
-              ['Impacto operativo', textoPlanoExtra('El agente evita reteclear nombre, contacto y vigencia: ya vienen del tótem y del CRM. Enfoque en inspección y activación de pago.', 200)]
-            ],
-            analisisComprobante: textoPlanoExtra(
-              'Tarjeta de circulación y factura: campos clave extraídos por automatización (demo). Coincidencia titular 98 por ciento simulado. Discrepancias menores irían a revisión rápida.',
-              300
+            eficienciaSala: textoPlanoExtra(
+              'Nombre, contacto y vigencia precargados desde tótem y CRM. El ejecutivo se concentra en inspección, coberturas finas y activación de pago.',
+              320
             ),
-            docLabel: 'Ver identificación y tarjeta demo'
+            validacionDocumental: textoPlanoExtra(
+              'Tarjeta de circulación y factura: extracción automática de campos clave. Coincidencia titular referencial 98 por ciento. Discrepancias menores a revisión rápida.',
+              320
+            ),
+            docLabel: 'Ver identificación y tarjeta de circulación'
           };
         }
         if (op === 'inversiones') {
           return {
-            consultaBuro: textoPlanoExtra(
-              'Capacidad de pago orientativa favorable (simulado). Relación vivienda ingreso dentro de parámetros demo. Alerta suave: revisar gravamen si hay crédito activo en otro institucional (flag genérico).',
-              420
+            contextoTramite: textoPlanoExtra(
+              'Vivienda habitacional. Superficie aproximada 120 a 150 m2. Antigüedad media. Valor de reconstrucción orientativo 3500000 MXN, no vinculante. Paquete referencial: multirriesgo con terremoto y contenidos.',
+              380
             ),
-            ofertas: textoPlanoExtra(
-              textoOfertaTramiteSeguros(op) +
-                '. Paquete sugerido: multirriesgo hogar con terremoto y contenidos. Inspección remota agendable desde CRM. Renovación y endosos conectados a póliza madre (discurso demo para integración).',
-              420
+            integracionCrm: textoPlanoExtra(
+              crm + ' Geolocalización de riesgo catastral: zona media.',
+              320
             ),
-            filasExtraTabla: [
-              ['Inmueble referencia demo', textoPlanoExtra('Vivienda habitacional. Superficie aproximada 120 a 150 m2. Antigüedad media. Valor reconstrucción orientativo 3500000 MXN (no vinculante).', 200)],
-              ['Perfil y automatización', textoPlanoExtra(baseCrm + ' Geolocalización de riesgo catastral simulada: zona media.', 220)],
-              ['Impacto operativo', textoPlanoExtra('Menos ida y vuelta por datos del contratante: ya consolidados en cola. El ejecutivo cierra coberturas y cláusulas específicas.', 200)]
-            ],
-            analisisComprobante: textoPlanoExtra(
-              'Comprobante de domicilio: lectura automática demo con coincidencia de entidad federativa. Si hubiera segunda residencia, el sistema marcaría dualidad para validación humana.',
-              300
+            eficienciaSala: textoPlanoExtra(
+              'Datos del contratante consolidados en cola. Menos ida y vuelta. El ejecutivo ajusta coberturas, exclusiones y cláusulas específicas.',
+              320
             ),
-            docLabel: 'Ver escritura o comprobante demo'
+            validacionDocumental: textoPlanoExtra(
+              'Comprobante de domicilio: lectura automática con coincidencia de entidad federativa. Segunda residencia marcaría revisión humana.',
+              320
+            ),
+            docLabel: 'Ver escritura o comprobante de domicilio'
           };
         }
         return {
-          consultaBuro: textoPlanoExtra('Perfil general demo sin observaciones. Listo para asignación a ejecutivo con contexto en CRM.', 280),
-          ofertas: textoPlanoExtra(textoOfertaTramiteSeguros(op) + '. Continuidad del journey desde canal digital (demo Numia).', 280),
-          filasExtraTabla: [['Perfil y automatización', textoPlanoExtra(baseCrm, 240)]],
-          analisisComprobante: textoPlanoExtra('Sin comprobante en este paso. Flujo demo.', 120),
-          docLabel: 'Ver documentación demo'
+          contextoTramite: textoPlanoExtra('Contexto general de protección patrimonial. Listo para asignación con expediente en CRM.', 240),
+          integracionCrm: textoPlanoExtra(crm, 280),
+          eficienciaSala: textoPlanoExtra('Información precargada desde canal digital. Atención ágil en sala.', 200),
+          validacionDocumental: textoPlanoExtra('Validación documental según política del producto.', 160),
+          docLabel: 'Ver documentación'
         };
       }
       
-      function armarTablaDatosCliente(nom, ape, curp, mail, ph, op) {
-        var demo = demoComercialPorTramite(op);
-        var filas =
+      /** Solo datos capturados en formulario + trámite elegido (sin mezclar bloques comerciales). */
+      function armarTablaDatosClienteSoloFormulario(nom, ape, curp, mail, ph, op) {
+        return (
+          '<table>' +
           '<tr><td>Nombre: ' +
           escapeHtml(nom) +
           '</td></tr><tr><td>Apellidos: ' +
@@ -1381,32 +1404,24 @@
           escapeHtml(ph) +
           '</td></tr><tr><td>Trámite seleccionado: ' +
           escapeHtml(textoOfertaTramiteSeguros(op).replace(/^Ofrecer /, '')) +
-          '</td></tr>';
-        var i;
-        for (i = 0; i < demo.filasExtraTabla.length; i++) {
-          filas +=
-            '<tr><td>' +
-            escapeHtml(demo.filasExtraTabla[i][0]) +
-            ': ' +
-            escapeHtml(demo.filasExtraTabla[i][1]) +
-            '</td></tr>';
-        }
-        return '<table>' + filas + '</table>';
+          '</td></tr></table>'
+        );
       }
       
       /**
-       * POST enqueue Filavirtual: mismo esquema que referencia Postman (extraFields + customerExtraFields).
+       * POST enqueue Filavirtual: varios campos principales tipo tabla (etiqueta / valor en workstation).
        */
       function construirPayloadEnqueueTurno() {
         var ph = soloDigitosTelefono(formTelefono);
         if (!ph) ph = '0000000000';
         var op = opcionTramiteJourney || 'prestamos';
-        var nom = textoPlanoExtra(formNombre, 80);
-        var ape = textoPlanoExtra(formApellido, 80);
+        var nom = String(formNombre || '').trim();
+        var ape = String(formApellido || '').trim();
         var curp = String(formDni || '').trim();
         var mail = textoPlanoExtra(formEmail, 120);
-        var demo = demoComercialPorTramite(op);
-        var tablaCliente = armarTablaDatosCliente(nom, ape, curp, mail, ph, op);
+        var bloque = bloquesComercialesPorTramite(op);
+        var tablaCliente = armarTablaDatosClienteSoloFormulario(nom, ape, curp, mail, ph, op);
+        var docHref = DOC_URL_IDENTIFICACION.replace(/&/g, '&amp;');
         return {
           firstName: nom,
           lastName: ape,
@@ -1416,13 +1431,17 @@
           extraFields: [
             {
               showable: [{ in: 'workstation', format: 'both' }],
-              'Consulta Buró de crédito': demo.consultaBuro,
-              'Ofertas personalizadas': demo.ofertas,
               'Datos de cliente': tablaCliente,
-              'Análisis de comprobante de domicilio': demo.analisisComprobante,
+              'Contexto del trámite': bloque.contextoTramite,
+              'Integración CRM y cola': bloque.integracionCrm,
+              'Eficiencia en sala': bloque.eficienciaSala,
+              'Validación documental': bloque.validacionDocumental,
+              'Ofertas personalizadas': ofertaCrossSellBreve(op),
               Documentación:
-                "<a href='https://tinyurl.com/abc123' target='_blank' rel='noopener noreferrer'>" +
-                escapeHtml(demo.docLabel) +
+                "<a href='" +
+                docHref +
+                "' target='_blank' rel='noopener noreferrer'>" +
+                escapeHtml(bloque.docLabel) +
                 '</a>'
             }
           ],
