@@ -1173,10 +1173,16 @@
       /** Interceptación: respuesta â€œcliente no encontrado por DNIâ€ â†’ expediente desactualizado (folio demo). */
       const FOLIO_EXPEDIENTE_INBURSA = '220696';
       const WA_EXPEDIENTE_E164 = '5215518624901';
-      /** Flujo "Estoy en la sucursal" + DNI demo: siempre videollamada (recomendada) + presencial; colas dedicadas. */
+      /** Flujo "Estoy en la sucursal" + DNI demo: siempre videollamada (recomendada) + presencial. */
       const DNI_SUCURSAL_DOBLE_ATENCION = '29328704';
-      const QUEUE_SUCURSAL_DNI_VIDEO = '17456';
-      const QUEUE_SUCURSAL_DNI_PRES = '17455';
+      /** Filavirtual: mismas colas para todos los trámites; sucursal y token globales. */
+      const FILA_VIRTUAL = {
+        BASE_URL: 'https://filavirtual2.debmedia.com/api/v1',
+        BRANCH_ID: '10750',
+        API_TOKEN: 'XlOIHNe0yDnF6htBZWhdv3uFHxQKanqdVNQZC17w',
+        QUEUE_VIDEO: '16223',
+        QUEUE_PRESENCIAL: '16221'
+      };
       /** Flujo cita + este DNI/ID: siempre muestra videollamada y presencial; al encolar usa payload enriquecido para Seguros Falabella (título "Cita generada"). */
       const DNI_CITA_TURNO_DIRECTO = '240696';
       
@@ -1266,45 +1272,58 @@
         return s;
       }
       
-      /**
-       * Bloque extraFields + customerExtraFields fijo para Seguro de auto (coche). No modificar el contenido de extraFields.
-       */
-      function extraFieldsSeguroAutoFijo() {
-        return {
-          extraFields: [
-            {
-              showable: [{ in: 'workstation', format: 'both' }],
-              'Actividad digital': 'Descarga de póliza, 3 vistas a seguro de gastos médicos mayores',
-              'Ofertas personalizadas': 'Ofrecer seguro de gastos médicos mayores familiar',
-              'Datos de cliente':
-                '<table><tr><td>Nombre: Barlaam Eduardo</td></tr><tr><td>Apellidos: Corona Becerra</td></tr><tr><td>Hijos: 2</td></tr><tr><td>Edad: 30</td></tr><tr><td>Sexo: H</td></tr><tr><td>Esposa: sí</td></tr><tr><td>Empresa: Numia</td></tr><tr><td>Antigüedad: 4 años</td></tr></table>',
-              'Análisis de comprobante de domicilio': 'N/A',
-              Documentación:
-                "<a href='https://drive.google.com/file/d/17LIKWYYIVOBkJifhC9Re-qF_h7QzbKZ-/view?usp=drive_link' target='_blank' rel='noopener noreferrer'>Ver ID</a>"
-            }
-          ],
-          customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
-        };
+      function textoOfertaTramiteSeguros(op) {
+        if (op === 'prestamos') return 'Ofrecer seguro de vida';
+        if (op === 'tarjetas') return 'Ofrecer seguro de auto';
+        if (op === 'inversiones') return 'Ofrecer seguro de vivienda';
+        return 'Ofrecer producto Seguros Falabella';
       }
       
       /**
-       * POST enqueue Filavirtual. Seguro de auto: firstName, lastName, cedulaIdentidad, email, phone + extraFields fijos del usuario.
-       * Otros trámites: mismos 5 campos raíz (sin extraFields) y dni por compatibilidad.
+       * POST enqueue Filavirtual: mismo esquema que referencia Postman (extraFields + customerExtraFields).
+       * Datos raíz y tabla desde el formulario; resto de claves como en el ejemplo.
        */
       function construirPayloadEnqueueTurno() {
         var ph = soloDigitosTelefono(formTelefono);
         if (!ph) ph = '0000000000';
-        var base = {
-          firstName: textoPlanoExtra(formNombre, 80),
-          lastName: textoPlanoExtra(formApellido, 80),
-          cedulaIdentidad: String(formDni || '').trim(),
-          email: textoPlanoExtra(formEmail, 120),
-          phone: ph
+        var op = opcionTramiteJourney || 'prestamos';
+        var nom = textoPlanoExtra(formNombre, 80);
+        var ape = textoPlanoExtra(formApellido, 80);
+        var curp = String(formDni || '').trim();
+        var mail = textoPlanoExtra(formEmail, 120);
+        var tablaCliente =
+          '<table><tr><td>Nombre: ' +
+          escapeHtml(nom) +
+          '</td></tr><tr><td>Apellidos: ' +
+          escapeHtml(ape) +
+          '</td></tr><tr><td>CURP / ID: ' +
+          escapeHtml(curp) +
+          '</td></tr><tr><td>Email: ' +
+          escapeHtml(mail) +
+          '</td></tr><tr><td>Teléfono: ' +
+          escapeHtml(ph) +
+          '</td></tr><tr><td>Trámite seleccionado: ' +
+          escapeHtml(textoOfertaTramiteSeguros(op).replace(/^Ofrecer /, '')) +
+          '</td></tr></table>';
+        return {
+          firstName: nom,
+          lastName: ape,
+          cedulaIdentidad: curp,
+          email: mail,
+          phone: ph,
+          extraFields: [
+            {
+              showable: [{ in: 'workstation', format: 'both' }],
+              'Consulta Buró de crédito': 'N/A (tótem Agencia Seguros Falabella — demo)',
+              'Ofertas personalizadas': textoOfertaTramiteSeguros(op),
+              'Datos de cliente': tablaCliente,
+              'Análisis de comprobante de domicilio': 'N/A',
+              Documentación:
+                "<a href='https://tinyurl.com/abc123' target='_blank' rel='noopener noreferrer'>Ver ID</a>"
+            }
+          ],
+          customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
         };
-        if (opcionTramiteJourney === 'tarjetas') {
-          return Object.assign({}, base, extraFieldsSeguroAutoFijo());
-        }
-        return Object.assign({}, base, { dni: base.cedulaIdentidad });
       }
       
       /** prestamos | tarjetas | inversiones â€” último trámite elegido (para cola de videollamada). */
@@ -2194,24 +2213,17 @@
         await solicitarAtencion('presencial');
       }
       
-      // Solicitar atención (videollamada: cola 17452 solo para Seguro de vivienda / inversiones; resto 16223; presencial sin cambios)
+      // Solicitar atención Filavirtual: videollamada siempre cola 16223, presencial siempre 16221; sucursal 10750.
       async function solicitarAtencion(tipo) {
         try {
-          const QUEUE_VIDEO_DEFAULT = '16223';
-          const QUEUE_VIDEO_CREDITO_HIPOTECARIO = '17452';
-          const QUEUE_PRESENCIAL = '16221';
-          let queueId;
-          if (esSucursalDniDobleAtencionEspecial()) {
-            queueId = tipo === 'presencial' ? QUEUE_SUCURSAL_DNI_PRES : QUEUE_SUCURSAL_DNI_VIDEO;
-          } else if (tipo === 'presencial') {
-            queueId = QUEUE_PRESENCIAL;
-          } else if (opcionTramiteJourney === 'inversiones') {
-            queueId = QUEUE_VIDEO_CREDITO_HIPOTECARIO;
-          } else {
-            queueId = QUEUE_VIDEO_DEFAULT;
-          }
-          const apiUrl = `https://filavirtual2.debmedia.com/api/v1/queue/${queueId}/branch/10724/enqueue`;
-          const apiToken = 'RkupuHk98V8bJoYHVKBy4hZTyOMcgqs6QZFItUsg';
+          var queueId = tipo === 'presencial' ? FILA_VIRTUAL.QUEUE_PRESENCIAL : FILA_VIRTUAL.QUEUE_VIDEO;
+          var apiUrl =
+            FILA_VIRTUAL.BASE_URL +
+            '/queue/' +
+            encodeURIComponent(queueId) +
+            '/branch/' +
+            encodeURIComponent(FILA_VIRTUAL.BRANCH_ID) +
+            '/enqueue';
           
           const datos = construirPayloadEnqueueTurno();
           
@@ -2219,7 +2231,7 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-api-token': apiToken
+              'x-api-token': FILA_VIRTUAL.API_TOKEN
             },
             body: JSON.stringify(datos)
           });
