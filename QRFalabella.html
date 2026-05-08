@@ -1257,74 +1257,77 @@
         return String(val || '').replace(/\D/g, '');
       }
       
-      /**
-       * Cuerpo JSON para POST enqueue (Debmedia Filavirtual): mismo esquema que referencia workstation
-       * (firstName, lastName, cedulaIdentidad, email, phone, extraFields, customerExtraFields).
-       * Se incluye también `dni` por compatibilidad con integraciones legacy que esperen esa propiedad.
-       */
-      function construirExtraFieldsSeguros(opcion) {
-        const nom = escapeHtml(String(formNombre || '').trim());
-        const ape = escapeHtml(String(formApellido || '').trim());
-        const id = escapeHtml(String(formDni || '').trim());
-        const mail = escapeHtml(String(formEmail || '').trim());
-        const tel = escapeHtml(soloDigitosTelefono(formTelefono));
-        const datosClienteHtml =
-          '<table><tr><td>Nombre: ' + nom + '</td></tr><tr><td>Apellidos: ' + ape + '</td></tr><tr><td>ID/CURP: ' + id +
-          '</td></tr><tr><td>Email: ' + mail + '</td></tr><tr><td>Teléfono capturado: ' + tel + '</td></tr><tr><td>Preferencia idioma (demo): Español</td></tr><tr><td>Horario de contacto estimado (demo): 10:00–18:00</td></tr></table>';
-        
-        var base = {
-          'Tipo de solicitante': 'Persona física — prospecto cotización / alta de póliza (demo)',
-          'Producto / trámite': etiquetaTramiteParaMensaje(opcion),
-          'Datos de cliente': datosClienteHtml,
-          'Motivo del turno encolado': 'Atención humana especializada tras pre-captura en tótem',
-          Documentación:
-            "<a href='https://demo.seguros-falabella.app/ficha-demo' target='_blank' rel='noopener noreferrer'>Ficha consolidada cliente (demo)</a>"
-        };
-        
-        if (opcion === 'prestamos') {
-          return Object.assign({}, base, {
-            'Valor pre-procesado (vida)': 'Perfil riesgo bajo declarado • sin incapacidades reportadas • suma objetivo ~$2,500,000 MXN',
-            'Beneficios en cartera abierta': 'Opción combinada vida + TIPT (simulación demo)',
-            'Validaciones sugeridas al agente': 'PEP/FATCA en expediente rápido; confirmar ocupación declarada técnico mid-level',
-            'Qué omitir preguntando en línea':
-              'Contacto, nombre completo y producto solicitado — ya figuran en cola; priorizar precotización y documentos.',
-            'Próxima acción recomendada': 'Enviar cotización formal y agendar firma digital o cita médica corta.'
-          });
-        }
-        if (opcion === 'tarjetas') {
-          return Object.assign({}, base, {
-            'Vehículo (simulación)': 'Toyota Avanza 2020 • uso particular • Zona centro CDMX • Placas DEM-084',
-            'Cobertura pre-seleccionada': 'Amplia + Responsabilidad civil / Asistencias ampliadas (demo)',
-            'Historial uso y siniestralidad declarada': 'Sin siniestro total previo • Multas vigentes ninguna conocida • ~18,500 km/anio',
-            'Qué omitir preguntando en línea':
-              'Datos ID, teléfono y email — ya están en workstation; enfocarse en modelo exacto VIN opcional.',
-            'Próxima acción recomendada': 'Cotización fila preferente y envío PDF + enlace cobro inicial.'
-          });
-        }
-        if (opcion === 'inversiones') {
-          return Object.assign({}, base, {
-            'Inmueble (simulación)': 'Casa habitacional vertical • 138 m² • antigüedad 9 años • Guadalajara JAL',
-            'Valor reconstrucción orientativa': '$3,600,000 MXN (simulado — no vinculante)',
-            'Riesgos adicionales sugeridos': 'Terremoto región media • Contenidos $450,000 MXN',
-            'Qué omitir preguntando en línea':
-              'Identidad y contacto ya validados en formulario; solicitar solo finiquitos o hipoteca si aplica.',
-            'Próxima acción recomendada': 'Inspección virtual y emisión de carátula con cláusulas RC terceros.'
-          });
-        }
-        return base;
+      /** Texto seguro para extrafields y visores basicos: sin saltos, sin HTML, sin signos que suelen romper parsers. */
+      function textoPlanoExtra(val, maxLen) {
+        var s = String(val || '').trim();
+        s = s.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ');
+        s = s.replace(/[<>&]/g, '');
+        if (maxLen && s.length > maxLen) s = s.slice(0, maxLen);
+        return s;
       }
       
+      function etiquetaProductoExtra(op) {
+        if (op === 'prestamos') return 'Seguro de vida';
+        if (op === 'tarjetas') return 'Seguro de auto';
+        if (op === 'inversiones') return 'Seguro de vivienda';
+        return 'Seguros';
+      }
+      
+      /**
+       * Extra fields solo texto plano, claves ASCII cortas. El visor del workstation es sensible a HTML o formatos ricos.
+       */
+      function construirExtraFieldsSeguros(opcion) {
+        var op = opcion || 'prestamos';
+        var prod = textoPlanoExtra(etiquetaProductoExtra(op), 80);
+        var tel = soloDigitosTelefono(formTelefono);
+        var lineaCliente = textoPlanoExtra(
+          'Nombre ' + formNombre + '. Apellidos ' + formApellido + '. ID ' + formDni +
+          '. Email ' + formEmail + '. Tel ' + tel + '. Idioma ES. Contacto 10 a 18 h demo.',
+          480
+        );
+        var notas = '';
+        if (op === 'prestamos') {
+          notas = textoPlanoExtra(
+            'Vida demo: riesgo bajo declarado, sin incapacidades reportadas, suma orientativa 2500000 MXN. Revisar PEP y FATCA. Siguiente paso cotizacion formal y firma o cita medica corta.',
+            420
+          );
+        } else if (op === 'tarjetas') {
+          notas = textoPlanoExtra(
+            'Auto demo: Toyota Avanza 2020 particular CDMX placas DEM084. Cobertura amplia mas RC. Sin siniestro total declarado. Siguiente paso cotizacion y envio PDF.',
+            420
+          );
+        } else if (op === 'inversiones') {
+          notas = textoPlanoExtra(
+            'Hogar demo: vivienda vertical 138 m2 Guadalajara, antiguedad 9 anios. Valor reconstruccion orientativo 3600000 MXN. Terremoto y contenidos 450000 MXN. Siguiente paso inspeccion virtual.',
+            420
+          );
+        } else {
+          notas = textoPlanoExtra('Tramite seguros Falabella demo.', 200);
+        }
+        return {
+          cliente: lineaCliente,
+          producto: prod,
+          notas_agente: notas,
+          doc_ref: textoPlanoExtra('Referencia solo texto https://demo.seguros-falabella.app/ficha-demo', 160)
+        };
+      }
+      
+      /**
+       * POST enqueue: mismo envelope que antes del cambio a extrafields complejos (firstName, lastName, dni, email, phone).
+       * extraFields en una sola fila con texto plano.
+       */
       function construirPayloadEnqueueTurno() {
         var opcion = opcionTramiteJourney || 'prestamos';
         var extraMap = construirExtraFieldsSeguros(opcion);
         var filaExtra = Object.assign({ showable: [{ in: 'workstation', format: 'both' }] }, extraMap);
+        var ph = soloDigitosTelefono(formTelefono);
+        if (!ph) ph = '0000000000';
         return {
-          firstName: String(formNombre || '').trim(),
-          lastName: String(formApellido || '').trim(),
-          cedulaIdentidad: String(formDni || '').trim(),
-          email: String(formEmail || '').trim(),
-          phone: soloDigitosTelefono(formTelefono),
-          dni: String(formDni || '').trim(),
+          firstName: textoPlanoExtra(formNombre, 80),
+          lastName: textoPlanoExtra(formApellido, 80),
+          dni: textoPlanoExtra(formDni, 32),
+          email: textoPlanoExtra(formEmail, 120),
+          phone: ph,
           extraFields: [filaExtra],
           customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
         };
