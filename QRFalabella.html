@@ -1267,19 +1267,44 @@
       }
       
       /**
-       * POST enqueue Filavirtual: solo los 5 campos que acepta el endpoint (igual que un POST exitoso en Postman).
-       * No incluir extraFields aquí: en este tenant suele provocar 500; los datos van igual en firstName, lastName, dni, email, phone.
+       * Bloque extraFields + customerExtraFields fijo para Seguro de auto (coche). No modificar el contenido de extraFields.
+       */
+      function extraFieldsSeguroAutoFijo() {
+        return {
+          extraFields: [
+            {
+              showable: [{ in: 'workstation', format: 'both' }],
+              'Actividad digital': 'Descarga de póliza, 3 vistas a seguro de gastos médicos mayores',
+              'Ofertas personalizadas': 'Ofrecer seguro de gastos médicos mayores familiar',
+              'Datos de cliente':
+                '<table><tr><td>Nombre: Barlaam Eduardo</td></tr><tr><td>Apellidos: Corona Becerra</td></tr><tr><td>Hijos: 2</td></tr><tr><td>Edad: 30</td></tr><tr><td>Sexo: H</td></tr><tr><td>Esposa: sí</td></tr><tr><td>Empresa: Numia</td></tr><tr><td>Antigüedad: 4 años</td></tr></table>',
+              'Análisis de comprobante de domicilio': 'N/A',
+              Documentación:
+                "<a href='https://drive.google.com/file/d/17LIKWYYIVOBkJifhC9Re-qF_h7QzbKZ-/view?usp=drive_link' target='_blank' rel='noopener noreferrer'>Ver ID</a>"
+            }
+          ],
+          customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
+        };
+      }
+      
+      /**
+       * POST enqueue Filavirtual. Seguro de auto: firstName, lastName, cedulaIdentidad, email, phone + extraFields fijos del usuario.
+       * Otros trámites: mismos 5 campos raíz (sin extraFields) y dni por compatibilidad.
        */
       function construirPayloadEnqueueTurno() {
         var ph = soloDigitosTelefono(formTelefono);
         if (!ph) ph = '0000000000';
-        return {
+        var base = {
           firstName: textoPlanoExtra(formNombre, 80),
           lastName: textoPlanoExtra(formApellido, 80),
-          dni: textoPlanoExtra(formDni, 32),
+          cedulaIdentidad: String(formDni || '').trim(),
           email: textoPlanoExtra(formEmail, 120),
           phone: ph
         };
+        if (opcionTramiteJourney === 'tarjetas') {
+          return Object.assign({}, base, extraFieldsSeguroAutoFijo());
+        }
+        return Object.assign({}, base, { dni: base.cedulaIdentidad });
       }
       
       /** prestamos | tarjetas | inversiones â€” último trámite elegido (para cola de videollamada). */
@@ -2200,7 +2225,9 @@
           });
           
           if (!response.ok) {
-            throw new Error(`Error en servidor (${response.status})`);
+            var errBody = await response.text().catch(function() { return ''; });
+            console.error('enqueue error body:', errBody);
+            throw new Error('Error en servidor (' + response.status + ')' + (errBody ? ': ' + errBody.slice(0, 200) : ''));
           }
           
           const data = await response.json();
