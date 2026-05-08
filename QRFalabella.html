@@ -1279,137 +1279,148 @@
         return 'Ofrecer producto Seguros Falabella';
       }
       
-      /** Cross-sell breve: producto distinto al trámite actual (mensaje comercial genérico). */
+      /** Cross-sell: una línea corta, otro producto al trámite actual. */
       function ofertaCrossSellBreve(op) {
         if (op === 'prestamos') {
-          return textoPlanoExtra(
-            'Sugerencia comercial: gastos médicos mayores individuales o familiares. Encolado por otro canal.',
-            200
-          );
+          return textoPlanoExtra('Gastos médicos mayores (individual o familiar).', 90);
         }
         if (op === 'tarjetas') {
-          return textoPlanoExtra(
-            'Sugerencia comercial: seguro de hogar o patrimonio con cobertura de contenidos.',
-            200
-          );
+          return textoPlanoExtra('Hogar o patrimonio con contenidos.', 90);
         }
         if (op === 'inversiones') {
-          return textoPlanoExtra(
-            'Sugerencia comercial: seguro de auto amplio con asistencias y responsabilidad civil.',
-            200
-          );
+          return textoPlanoExtra('Auto amplio: asistencias + RC.', 90);
         }
-        return textoPlanoExtra('Sugerencia: producto complementario de protección patrimonial.', 160);
+        return textoPlanoExtra('Protección patrimonial complementaria.', 80);
       }
       
       var DOC_URL_IDENTIFICACION =
         'https://drive.google.com/file/d/17LIKWYYIVOBkJifhC9Re-qF_h7QzbKZ-/view?usp=drive_link';
       
-      function lineaCrmBase() {
-        return (
-          'Origen: tótem digital. Lead sincronizado a CRM. ID de interacción: INT-' +
-          String(Math.floor(100000 + Math.random() * 900000)) +
-          '. Siguiente paso sugerido por motor de reglas: contacto humano con contexto cargado.'
-        );
+      function nuevoIdInteraccion() {
+        return 'INT-' + String(Math.floor(100000 + Math.random() * 900000));
+      }
+      
+      /** Texto derecha muy breve; muchas filas. Límite por defecto bajo para no saturar celdas. */
+      function corto(s, max) {
+        return textoPlanoExtra(s, max != null ? max : 52);
       }
       
       /**
-       * Contenido repartido en varios campos (columna morada / valor) para no saturar una sola fila.
-       * Textos genéricos para presentaciones comerciales (sin marcas de prueba en el contenido visible).
+       * Una fila por clave; valores cortos tipo referencia Postman; más filas, menos caracteres por valor.
        */
-      function bloquesComercialesPorTramite(op) {
-        var crm = lineaCrmBase();
+      function armarExtraFieldsFilasCortas(op, nom, ape, curp, mail, ph) {
+        var idInt = nuevoIdInteraccion();
+        var tramite = textoOfertaTramiteSeguros(op).replace(/^Ofrecer /, '');
+        var docLabel = 'Ver ID';
+        var filas = {
+          showable: [{ in: 'workstation', format: 'both' }],
+          Nombre: corto(nom, 48),
+          Apellidos: corto(ape, 48),
+          'CURP / ID': corto(curp, 28),
+          Email: corto(mail, 56),
+          Teléfono: corto(ph, 18),
+          'Trámite en curso': corto(tramite, 40)
+        };
         if (op === 'prestamos') {
-          return {
-            contextoTramite: textoPlanoExtra(
-              'Perfil orientativo 742 sobre 900. Sin observaciones negativas en fuentes consultadas. Propensión a protección familiar: alta. Suma sugerida de referencia 2500000 MXN, no vinculante.',
-              380
-            ),
-            integracionCrm: textoPlanoExtra(crm + ' Validación de identidad en canal digital previa a cola.', 320),
-            eficienciaSala: textoPlanoExtra(
-              'Ahorro referencial al agente 4 a 6 minutos vs captura manual. Checklist PEP y FATCA precargado en expediente digital. Menos repregunta en sala; foco en cierre y firma.',
-              320
-            ),
-            validacionDocumental: textoPlanoExtra(
-              'Comprobante no obligatorio en este paso. Si aplica domicilio, extracción OCR con coincidencia en padrón. Excepciones a bandeja de calidad.',
-              320
-            ),
-            docLabel: 'Ver identificación oficial'
-          };
+          Object.assign(filas, {
+            'Perfil orientativo': corto('742/900. Sin alertas.', 40),
+            Propensión: corto('Alta: familia.', 28),
+            'Suma referencia': corto('2.5 MMXN ref. No vinc.', 36),
+            'Canal de captación': corto('Tótem digital.', 28),
+            'Sincronización CRM': corto('Lead automático.', 28),
+            'ID de interacción': corto(idInt, 22),
+            'Motor de reglas': corto('Ejecutivo + contexto.', 36),
+            'Validación identidad': corto('Prevalidado digital.', 32),
+            'Ahorro de tiempo': corto('~4-6 min vs manual.', 32),
+            'PEP / FATCA': corto('Checklist en expediente.', 36),
+            Comprobante: corto('No obligatorio aquí.', 28),
+            'OCR domicilio': corto('Match padrón si aplica.', 36),
+            'Borrador cotización': corto('En bandeja asesor.', 32),
+            Beneficiarios: corto('Confirmar en sala.', 28),
+            'Próximo paso': corto('Cierre o firma digital.', 36),
+            'Ofertas personalizadas': corto(ofertaCrossSellBreve(op), 56),
+            Documentación:
+              "<a href='" +
+              DOC_URL_IDENTIFICACION.replace(/&/g, '&amp;') +
+              "' target='_blank' rel='noopener noreferrer'>" +
+              escapeHtml(docLabel) +
+              '</a>'
+          });
+          return filas;
         }
         if (op === 'tarjetas') {
-          return {
-            contextoTramite: textoPlanoExtra(
-              'Uso particular. Vehículo tipo sedán compacto reciente. Zona de circulación metropolitana. Riesgo vehicular estándar preferente. Licencia con antigüedad referencial 8 años. Sin siniestro total declarado en antecedentes.',
-              380
-            ),
-            integracionCrm: textoPlanoExtra(
-              crm + ' Enriquecimiento desde core institucional si existiera póliza previa.',
-              320
-            ),
-            eficienciaSala: textoPlanoExtra(
-              'Nombre, contacto y vigencia precargados desde tótem y CRM. El ejecutivo se concentra en inspección, coberturas finas y activación de pago.',
-              320
-            ),
-            validacionDocumental: textoPlanoExtra(
-              'Tarjeta de circulación y factura: extracción automática de campos clave. Coincidencia titular referencial 98 por ciento. Discrepancias menores a revisión rápida.',
-              320
-            ),
-            docLabel: 'Ver identificación y tarjeta de circulación'
-          };
+          Object.assign(filas, {
+            Vehículo: corto('Sedán compacto.', 24),
+            Uso: corto('Particular.', 20),
+            Zona: corto('Metrópoli.', 20),
+            'Clasificación riesgo': corto('Estándar preferente.', 32),
+            Licencia: corto('~8 años ref.', 22),
+            Siniestralidad: corto('Sin total declarado.', 28),
+            'Cobertura sugerida': corto('Amplia + RC.', 24),
+            Telemática: corto('Opcional: app.', 24),
+            'Canal de captación': corto('Tótem digital.', 28),
+            'Sincronización CRM': corto('Lead automático.', 28),
+            'ID de interacción': corto(idInt, 22),
+            Core: corto('Si hay póliza: enriquecer.', 36),
+            Precarga: corto('Nombre, contacto OK.', 32),
+            'Enfoque en sala': corto('Inspección + cobro.', 32),
+            'OCR tarjeta / factura': corto('Campos clave OK.', 28),
+            Titularidad: corto('~98% coincidencia.', 28),
+            'Taller convenio': corto('Red disponible.', 24),
+            'Ofertas personalizadas': corto(ofertaCrossSellBreve(op), 56),
+            Documentación:
+              "<a href='" +
+              DOC_URL_IDENTIFICACION.replace(/&/g, '&amp;') +
+              "' target='_blank' rel='noopener noreferrer'>" +
+              escapeHtml(docLabel) +
+              '</a>'
+          });
+          return filas;
         }
         if (op === 'inversiones') {
-          return {
-            contextoTramite: textoPlanoExtra(
-              'Vivienda habitacional. Superficie aproximada 120 a 150 m2. Antigüedad media. Valor de reconstrucción orientativo 3500000 MXN, no vinculante. Paquete referencial: multirriesgo con terremoto y contenidos.',
-              380
-            ),
-            integracionCrm: textoPlanoExtra(
-              crm + ' Geolocalización de riesgo catastral: zona media.',
-              320
-            ),
-            eficienciaSala: textoPlanoExtra(
-              'Datos del contratante consolidados en cola. Menos ida y vuelta. El ejecutivo ajusta coberturas, exclusiones y cláusulas específicas.',
-              320
-            ),
-            validacionDocumental: textoPlanoExtra(
-              'Comprobante de domicilio: lectura automática con coincidencia de entidad federativa. Segunda residencia marcaría revisión humana.',
-              320
-            ),
-            docLabel: 'Ver escritura o comprobante de domicilio'
-          };
+          Object.assign(filas, {
+            Inmueble: corto('Habitacional.', 20),
+            Metros: corto('120-150 m2.', 20),
+            Antigüedad: corto('Media.', 16),
+            'Reconstrucción ref': corto('3.5 MMXN ref.', 24),
+            'Paquete sugerido': corto('Multi + sismo + contenido.', 40),
+            'Canal de captación': corto('Tótem digital.', 28),
+            'Sincronización CRM': corto('Lead automático.', 28),
+            'ID de interacción': corto(idInt, 22),
+            Catastro: corto('Riesgo zona media.', 28),
+            Contratante: corto('Datos en cola.', 24),
+            'Rol del ejecutivo': corto('Coberturas + exclusiones.', 40),
+            'OCR comprobante': corto('Entidad OK.', 20),
+            'Segunda vivienda': corto('Si aplica: revisión.', 32),
+            Inspección: corto('Remota disponible.', 28),
+            Gravamen: corto('Validar hipoteca si hay.', 36),
+            Renovación: corto('Endoso mismo expediente.', 36),
+            'Ofertas personalizadas': corto(ofertaCrossSellBreve(op), 56),
+            Documentación:
+              "<a href='" +
+              DOC_URL_IDENTIFICACION.replace(/&/g, '&amp;') +
+              "' target='_blank' rel='noopener noreferrer'>" +
+              escapeHtml(docLabel) +
+              '</a>'
+          });
+          return filas;
         }
-        return {
-          contextoTramite: textoPlanoExtra('Contexto general de protección patrimonial. Listo para asignación con expediente en CRM.', 240),
-          integracionCrm: textoPlanoExtra(crm, 280),
-          eficienciaSala: textoPlanoExtra('Información precargada desde canal digital. Atención ágil en sala.', 200),
-          validacionDocumental: textoPlanoExtra('Validación documental según política del producto.', 160),
-          docLabel: 'Ver documentación'
-        };
-      }
-      
-      /** Solo datos capturados en formulario + trámite elegido (sin mezclar bloques comerciales). */
-      function armarTablaDatosClienteSoloFormulario(nom, ape, curp, mail, ph, op) {
-        return (
-          '<table>' +
-          '<tr><td>Nombre: ' +
-          escapeHtml(nom) +
-          '</td></tr><tr><td>Apellidos: ' +
-          escapeHtml(ape) +
-          '</td></tr><tr><td>CURP / ID: ' +
-          escapeHtml(curp) +
-          '</td></tr><tr><td>Email: ' +
-          escapeHtml(mail) +
-          '</td></tr><tr><td>Teléfono: ' +
-          escapeHtml(ph) +
-          '</td></tr><tr><td>Trámite seleccionado: ' +
-          escapeHtml(textoOfertaTramiteSeguros(op).replace(/^Ofrecer /, '')) +
-          '</td></tr></table>'
-        );
+        Object.assign(filas, {
+          Contexto: corto('Patrimonial. CRM OK.', 32),
+          'ID de interacción': corto(idInt, 22),
+          'Ofertas personalizadas': corto(ofertaCrossSellBreve(op), 56),
+          Documentación:
+            "<a href='" +
+            DOC_URL_IDENTIFICACION.replace(/&/g, '&amp;') +
+            "' target='_blank' rel='noopener noreferrer'>" +
+            escapeHtml(docLabel) +
+            '</a>'
+        });
+        return filas;
       }
       
       /**
-       * POST enqueue Filavirtual: varios campos principales tipo tabla (etiqueta / valor en workstation).
+       * POST enqueue Filavirtual: muchas filas breves (estilo referencia que encolaba bien).
        */
       function construirPayloadEnqueueTurno() {
         var ph = soloDigitosTelefono(formTelefono);
@@ -1419,32 +1430,13 @@
         var ape = String(formApellido || '').trim();
         var curp = String(formDni || '').trim();
         var mail = textoPlanoExtra(formEmail, 120);
-        var bloque = bloquesComercialesPorTramite(op);
-        var tablaCliente = armarTablaDatosClienteSoloFormulario(nom, ape, curp, mail, ph, op);
-        var docHref = DOC_URL_IDENTIFICACION.replace(/&/g, '&amp;');
         return {
           firstName: nom,
           lastName: ape,
           cedulaIdentidad: curp,
           email: mail,
           phone: ph,
-          extraFields: [
-            {
-              showable: [{ in: 'workstation', format: 'both' }],
-              'Datos de cliente': tablaCliente,
-              'Contexto del trámite': bloque.contextoTramite,
-              'Integración CRM y cola': bloque.integracionCrm,
-              'Eficiencia en sala': bloque.eficienciaSala,
-              'Validación documental': bloque.validacionDocumental,
-              'Ofertas personalizadas': ofertaCrossSellBreve(op),
-              Documentación:
-                "<a href='" +
-                docHref +
-                "' target='_blank' rel='noopener noreferrer'>" +
-                escapeHtml(bloque.docLabel) +
-                '</a>'
-            }
-          ],
+          extraFields: [armarExtraFieldsFilasCortas(op, nom, ape, curp, mail, ph)],
           customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
         };
       }
