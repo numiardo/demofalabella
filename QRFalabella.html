@@ -1266,60 +1266,11 @@
         return s;
       }
       
-      function etiquetaProductoExtra(op) {
-        if (op === 'prestamos') return 'Seguro de vida';
-        if (op === 'tarjetas') return 'Seguro de auto';
-        if (op === 'inversiones') return 'Seguro de vivienda';
-        return 'Seguros';
-      }
-      
       /**
-       * Extra fields solo texto plano, claves ASCII cortas. El visor del workstation es sensible a HTML o formatos ricos.
-       */
-      function construirExtraFieldsSeguros(opcion) {
-        var op = opcion || 'prestamos';
-        var prod = textoPlanoExtra(etiquetaProductoExtra(op), 80);
-        var tel = soloDigitosTelefono(formTelefono);
-        var lineaCliente = textoPlanoExtra(
-          'Nombre ' + formNombre + '. Apellidos ' + formApellido + '. ID ' + formDni +
-          '. Email ' + formEmail + '. Tel ' + tel + '. Idioma ES. Contacto 10 a 18 h demo.',
-          480
-        );
-        var notas = '';
-        if (op === 'prestamos') {
-          notas = textoPlanoExtra(
-            'Vida demo: riesgo bajo declarado, sin incapacidades reportadas, suma orientativa 2500000 MXN. Revisar PEP y FATCA. Siguiente paso cotizacion formal y firma o cita medica corta.',
-            420
-          );
-        } else if (op === 'tarjetas') {
-          notas = textoPlanoExtra(
-            'Auto demo: Toyota Avanza 2020 particular CDMX placas DEM084. Cobertura amplia mas RC. Sin siniestro total declarado. Siguiente paso cotizacion y envio PDF.',
-            420
-          );
-        } else if (op === 'inversiones') {
-          notas = textoPlanoExtra(
-            'Hogar demo: vivienda vertical 138 m2 Guadalajara, antiguedad 9 anios. Valor reconstruccion orientativo 3600000 MXN. Terremoto y contenidos 450000 MXN. Siguiente paso inspeccion virtual.',
-            420
-          );
-        } else {
-          notas = textoPlanoExtra('Tramite seguros Falabella demo.', 200);
-        }
-        return {
-          cliente: lineaCliente,
-          producto: prod,
-          notas_agente: notas,
-          doc_ref: textoPlanoExtra('Referencia solo texto https://demo.seguros-falabella.app/ficha-demo', 160)
-        };
-      }
-      
-      /**
-       * POST enqueue: mismo envelope que antes del cambio a extrafields complejos (firstName, lastName, dni, email, phone).
-       * extraFields en una sola fila con texto plano.
+       * POST enqueue Filavirtual: solo los 5 campos que acepta el endpoint (igual que un POST exitoso en Postman).
+       * No incluir extraFields aquí: en este tenant suele provocar 500; los datos van igual en firstName, lastName, dni, email, phone.
        */
       function construirPayloadEnqueueTurno() {
-        var opcion = opcionTramiteJourney || 'prestamos';
-        var extraMap = construirExtraFieldsSeguros(opcion);
-        var filaExtra = Object.assign({ showable: [{ in: 'workstation', format: 'both' }] }, extraMap);
         var ph = soloDigitosTelefono(formTelefono);
         if (!ph) ph = '0000000000';
         return {
@@ -1327,9 +1278,7 @@
           lastName: textoPlanoExtra(formApellido, 80),
           dni: textoPlanoExtra(formDni, 32),
           email: textoPlanoExtra(formEmail, 120),
-          phone: ph,
-          extraFields: [filaExtra],
-          customerExtraFields: [{ showable: [{ in: 'workstation', format: 'both' }] }]
+          phone: ph
         };
       }
       
@@ -1949,7 +1898,13 @@
           stepsContainer.innerHTML = '<div style="color: #ffffff;"><i class="bi bi-hourglass-split me-2"></i>Conectando con el asistente...</div>';
           
           // Llamar al agente con los datos del formulario y la opción seleccionada
-          const mensaje = `Necesito atención sobre ${etiquetaTramiteParaMensaje(opcion)}. Nombre: ${formNombre} ${formApellido}, ID/CURP: ${formDni}, Email: ${formEmail}, Tel: ${soloDigitosTelefono(formTelefono)}`;
+          const tel = soloDigitosTelefono(formTelefono);
+          const mensaje =
+            'Trámite: ' + etiquetaTramiteParaMensaje(opcion) + '. ' +
+            'Nombre: ' + formNombre + '. Apellido: ' + formApellido + '. ' +
+            'DNI del cliente (documento numérico capturado en tótem): ' + formDni + '. ' +
+            'El mismo valor como CURP o ID si el sistema lo exige en otro formato: ' + formDni + '. ' +
+            'Email: ' + formEmail + '. Teléfono: ' + tel + '.';
           
           const response = await fetch(JOURNEY_API_URL, {
             method: 'POST',
